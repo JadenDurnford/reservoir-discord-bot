@@ -399,9 +399,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
     } catch (error) {
       console.log(error);
-      await interaction.reply(
-        "Error pulling collection stats, try again later"
-      );
+      await interaction.update({
+        content: "Error pulling collection stats, try again later",
+        embeds: [],
+        components: [],
+      });
     }
   }
 
@@ -440,6 +442,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
       console.log(error);
       await interaction.update({
         content: "Error pulling collection stats, try again later",
+        embeds: [],
+        components: [],
       });
     }
   }
