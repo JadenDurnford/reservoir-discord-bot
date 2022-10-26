@@ -219,11 +219,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await interaction.reply({
         embeds: [testEmbed],
       });
+      return;
     } catch (error) {
       console.log(error);
       await interaction.reply(
         "Error searching for collections, try again later"
       );
+      return;
     }
   }
 
@@ -287,11 +289,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
         embeds: [testEmbed],
         components: [row],
       });
+      return;
     } catch (error) {
       console.log(error);
       await interaction.reply(
         "No collections found matching your search term, please try again."
       );
+      return;
     }
   }
 
@@ -355,14 +359,21 @@ client.on(Events.InteractionCreate, async (interaction) => {
         embeds: [testEmbed],
         components: [row],
       });
+      return;
     } catch (error) {
       console.log(error);
       await interaction.reply({
         content:
           "No collections found matching your search term, please try again.",
       });
+      return;
     }
   }
+
+  console.log("Unknown Command");
+  await interaction.reply({
+    content: "Error: Unknown Command",
+  });
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -382,7 +393,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
           name: "Reservoir Bot",
           url: "https://reservoir.tools/",
           iconURL:
-            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=4096",
+            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024",
         })
         .setDescription(
           `Token Count: ${collStats[0].tokenCount}
@@ -390,13 +401,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
         7 day volume: ${collStats[0].volume["7day"]}`
         )
         .setThumbnail(
-          "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=4096"
+          "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024"
         )
         .setTimestamp();
 
       await interaction.update({
         embeds: [statEmbed],
       });
+      return;
     } catch (error) {
       console.log(error);
       await interaction.update({
@@ -404,6 +416,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         embeds: [],
         components: [],
       });
+      return;
     }
   }
 
@@ -414,39 +427,94 @@ client.on(Events.InteractionCreate, async (interaction) => {
       } = await axios.get(
         `https://api.reservoir.tools/collections/v5?id=${interaction.values[0]}&includeTopBid=true&sortBy=allTimeVolume&limit=1`
       );
-      const bidEmbed = new EmbedBuilder()
-        .setColor(0x8b43e0)
-        .setTitle(`Collection Top Bid`)
-        .setAuthor({
-          name: `${bidCollData[0].name}`,
-          url: "https://reservoir.tools/",
-          iconURL: `${bidCollData[0].image}`,
-        })
-        .setDescription(
-          `The top bid on the collection is ${
-            bidCollData[0].topBid.price.netAmount.native
-          }Ξ made by [${bidCollData[0].topBid.maker.substring(
-            0,
-            6
-          )}](https://www.reservoir.market/address/${
-            bidCollData[0].topBid.maker
-          })`
-        )
-        .setThumbnail(`${bidCollData[0].image}`)
-        .setTimestamp();
 
-      await interaction.update({
-        embeds: [bidEmbed],
-      });
+      if (bidCollData[0].topBid.price != null) {
+        if (bidCollData[0].topBid.price.netAmount.native != null) {
+          const bidEmbed = new EmbedBuilder()
+            .setColor(0x8b43e0)
+            .setTitle(`Collection Top Bid`)
+            .setAuthor({
+              name: bidCollData[0].name,
+              url: "https://reservoir.tools/",
+              iconURL: bidCollData[0].image,
+            })
+            .setDescription(
+              `The top bid on the collection is ${
+                bidCollData[0].topBid.price.netAmount.native
+              }Ξ made by [${bidCollData[0].topBid.maker.substring(
+                0,
+                6
+              )}](https://www.reservoir.market/address/${
+                bidCollData[0].topBid.maker
+              })`
+            )
+            .setThumbnail(bidCollData[0].image)
+            .setTimestamp();
+
+          await interaction.update({
+            embeds: [bidEmbed],
+          });
+          return;
+        } else if (bidCollData[0].topBid.price.amount.native != null) {
+          const bidEmbed = new EmbedBuilder()
+            .setColor(0x8b43e0)
+            .setTitle(`Collection Top Bid`)
+            .setAuthor({
+              name: `${bidCollData[0].name}`,
+              url: "https://reservoir.tools/",
+              iconURL: `${bidCollData[0].image}`,
+            })
+            .setDescription(
+              `The top bid on the collection is ${
+                bidCollData[0].topBid.price.amount.native
+              }Ξ made by [${bidCollData[0].topBid.maker.substring(
+                0,
+                6
+              )}](https://www.reservoir.market/address/${
+                bidCollData[0].topBid.maker
+              })`
+            )
+            .setThumbnail(`${bidCollData[0].image}`)
+            .setTimestamp();
+
+          await interaction.update({
+            embeds: [bidEmbed],
+          });
+          return;
+        }
+      } else {
+        const bidEmbed = new EmbedBuilder()
+          .setColor(0x8b43e0)
+          .setTitle(`Collection Top Bid`)
+          .setAuthor({
+            name: `${bidCollData[0].name}`,
+            url: "https://reservoir.tools/",
+            iconURL: `${bidCollData[0].image}`,
+          })
+          .setDescription(`No bids found for ${bidCollData[0].name}`)
+          .setThumbnail(`${bidCollData[0].image}`)
+          .setTimestamp();
+
+        await interaction.update({
+          embeds: [bidEmbed],
+        });
+        return;
+      }
     } catch (error) {
-      console.log(error);
+      console.log(error.requestBody.json.data);
       await interaction.update({
         content: "Error pulling collection stats, try again later",
         embeds: [],
         components: [],
       });
+      return;
     }
   }
+
+  console.log("Unknown Selection");
+  await interaction.reply({
+    content: "Error: Unknown Selection",
+  });
 });
 
 client.login(process.env.TOKEN);
