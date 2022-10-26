@@ -357,9 +357,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
     } catch (error) {
       console.log(error);
-      await interaction.reply(
-        "No collections found matching your search term, please try again."
-      );
+      await interaction.reply({
+        content:
+          "No collections found matching your search term, please try again.",
+      });
     }
   }
 });
@@ -437,9 +438,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
     } catch (error) {
       console.log(error);
-      await interaction.reply(
-        "Error pulling collection stats, try again later"
-      );
+      await interaction.update({
+        content: "Error pulling collection stats, try again later",
+      });
     }
   }
 });
