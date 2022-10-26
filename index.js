@@ -409,7 +409,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       const {
         data: { collections: bidCollData },
       } = await axios.get(
-        `https://api.reservoir.tools/collections/v5?id=${contractAddress}&includeTopBid=true&sortBy=allTimeVolume&limit=1`
+        `https://api.reservoir.tools/collections/v5?id=${interaction.values[0]}&includeTopBid=true&sortBy=allTimeVolume&limit=1`
       );
       const bidEmbed = new EmbedBuilder()
         .setColor(0x8b43e0)
