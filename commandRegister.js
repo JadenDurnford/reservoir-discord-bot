@@ -32,6 +32,19 @@ let slash_commands = [
       },
     ],
   },
+  {
+    name: "topbid",
+    type: 1,
+    description: "Retrieve the top bid for an NFT collection",
+    options: [
+      {
+        "name": "name",
+        "description": "search for collections that match a string",
+        "type": 3,
+        "required": true,
+      },
+    ],
+  },
 ];
 
 const url = `https://discord.com/api/v10/applications/${process.env.APPLICATION_ID}/commands`;

@@ -16,8 +16,8 @@ redisClient.connect();
 
 redisClient.on("connect", function () {
   console.log("Connected!");
-  redisClient.set("floorprice", "2");
-  redisClient.set("topbid", "0.1");
+  redisClient.set("floorprice", "999999999");
+  redisClient.set("topbid", "0.00000001");
 });
 
 const client = new Client({
@@ -28,11 +28,11 @@ const client = new Client({
   ],
 });
 
-const contractAddress = "0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42";
+const contractAddress = process.env.TRACKED_CONTRACT;
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  const channel = client.channels.cache.get("1033122826581987413");
+  const channel = client.channels.cache.get(process.env.CHANNEL_ID);
   const floorPoll = async (resolve, reject) => {
     const {
       data: { events: floorData },
@@ -294,6 +294,74 @@ client.on(Events.InteractionCreate, async (interaction) => {
       );
     }
   }
+
+  if (interaction.commandName === "topbid") {
+    try {
+      const options = interaction.options._hoistedOptions;
+      const name =
+        options[options.findIndex((obj) => obj.name == "name")].value;
+      let contracts = "";
+
+      const {
+        data: { collections: searchResults },
+      } = await axios.get(
+        `https://api.reservoir.tools/search/collections/v1?name=${name}&limit=5`
+      );
+
+      searchResults.map((coll) => {
+        contracts += "&contract=" + coll.contract;
+      });
+
+      let fieldValue = "";
+      let counter = 1;
+      const selectOptions = searchResults.map((coll) => {
+        fieldValue += `**${counter}. [${coll.name}](https://www.reservoir.market/collections/${coll.contract})**
+      `;
+        counter++;
+        return { label: coll.name, value: coll.contract };
+      });
+
+      const testEmbed = new EmbedBuilder()
+        .setColor(0x8b43e0)
+        .setTitle("Search Results")
+        .setAuthor({
+          name: "Reservoir Bot",
+          url: "https://reservoir.tools/",
+          iconURL:
+            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=4096",
+        })
+        .setDescription(
+          searchResults.length != 0
+            ? `**The top ${searchResults.length} results for "${name}" are:**
+        ${fieldValue}
+        Please select the collection to view stats for below`
+            : `**No results found for "${name}"**`
+        )
+        .setThumbnail(
+          "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=4096"
+        )
+        .setTimestamp();
+
+      const row = new ActionRowBuilder().addComponents(
+        new SelectMenuBuilder()
+          .setCustomId("bidselect")
+          .setPlaceholder("Nothing selected")
+          .setMinValues(1)
+          .setMaxValues(1)
+          .addOptions(selectOptions)
+      );
+
+      await interaction.reply({
+        embeds: [testEmbed],
+        components: [row],
+      });
+    } catch (error) {
+      console.log(error);
+      await interaction.reply(
+        "No collections found matching your search term, please try again."
+      );
+    }
+  }
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -327,6 +395,45 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       await interaction.update({
         embeds: [statEmbed],
+      });
+    } catch (error) {
+      console.log(error);
+      await interaction.reply(
+        "Error pulling collection stats, try again later"
+      );
+    }
+  }
+
+  if (interaction.customId === "bidselect") {
+    try {
+      const {
+        data: { collections: bidCollData },
+      } = await axios.get(
+        `https://api.reservoir.tools/collections/v5?id=${contractAddress}&includeTopBid=true&sortBy=allTimeVolume&limit=1`
+      );
+      const bidEmbed = new EmbedBuilder()
+        .setColor(0x8b43e0)
+        .setTitle(`Collection Top Bid`)
+        .setAuthor({
+          name: `${bidCollData[0].name}`,
+          url: "https://reservoir.tools/",
+          iconURL: `${bidCollData[0].image}`,
+        })
+        .setDescription(
+          `The top bid on the collection is ${
+            bidCollData[0].topBid.price.netAmount.native
+          }Ξ made by [${bidCollData[0].topBid.maker.substring(
+            0,
+            6
+          )}](https://www.reservoir.market/address/${
+            bidCollData[0].topBid.maker
+          })`
+        )
+        .setThumbnail(`${bidCollData[0].image}`)
+        .setTimestamp();
+
+      await interaction.update({
+        embeds: [bidEmbed],
       });
     } catch (error) {
       console.log(error);
