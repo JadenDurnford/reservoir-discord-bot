@@ -1,51 +1,47 @@
-const axios = require("axios");
-const {
+import axios from "axios";
+import {
   Client,
   EmbedBuilder,
-  ButtonBuilder,
   ActionRowBuilder,
   SelectMenuBuilder,
   Events,
   GatewayIntentBits,
-} = require("discord.js");
-require("dotenv").config();
-const redis = require("redis");
-const winston = require("winston");
+  ChannelType,
+} from "discord.js";
+import dotenv from "dotenv";
+import logger from "./logger";
+import Redis from "ioredis";
+import { bidPoll } from "./bidPoll";
+import { floorPoll } from "./floorPoll";
 
-const redisClient = redis.createClient();
-const contractAddress = process.env.TRACKED_CONTRACT;
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.json(),
-  defaultMeta: { service: "user-service" },
-  transports: [new winston.transports.Console()],
-});
-
-//
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    })
-  );
+/* class Main {
+  private redis: RedisClient;
+  private discord: Discord;
 }
 
-redisClient.connect();
+class Discord {
+}
 
-redisClient.on("connect", async () => {
-  logger.info("Connected to redis client.");
-  if (!(await redisClient.get("floorprice"))) {
-    redisClient.set("floorprice", "999999999");
-    logger.info("redis floorprice key not found, initializing value");
-  }
-  if (!(await redisClient.get("floorprice"))) {
-    redisClient.set("topbid", "0.00000001");
-    logger.info("redis topbid key not found, initializing value");
-  }
-});
+async function main() {
+  // Check env vars
+
+  // Create new discord class
+  const d = new Main();
+  
+  // Handlers
+  client.on("ready", async () => await d.handleReady());
+  
+}
+
+try {
+  await main();
+} catch (e) {
+  logger.error(e);
+  throw new Error(e);
+} */
+
+dotenv.config();
+const redis = new Redis();
 
 const client = new Client({
   intents: [
@@ -55,105 +51,50 @@ const client = new Client({
   ],
 });
 
+const TRACKED_CONTRACT: string | undefined = process.env.TRACKED_CONTRACT;
+const CHANNEL_ID: string | undefined = process.env.CHANNEL_ID;
+if (!TRACKED_CONTRACT || !CHANNEL_ID) {
+  logger.error("Missing env vars");
+  throw new Error("Missing env vars");
+}
+
+/**
+ * Checks if key exists. If it doesn't sets it to newValue
+ * @param {string} key to check
+ * @param {string} newValue to set if key does not exist
+ */
+async function checkKeyOrSet(key: string, newValue: string): Promise<void> {
+  const cachedKey: string | null = await redis.get(key);
+  if (!cachedKey) {
+    const success = await redis.set(key, newValue);
+    if (success !== "OK") {
+      logger.error(`Could not initialize ${key} key in Redis`);
+      throw new Error(`Failed initializing ${key} key in Redis`);
+    }
+  }
+}
+
+redis.on("connect", async () => {
+  logger.info("Connected to Redis client.");
+
+  // Checking if floorprice and topbid prices are saved
+  await checkKeyOrSet("floorprice", "999999999");
+  await checkKeyOrSet("topbid", "0.0000000001");
+});
+
 client.on("ready", async () => {
   logger.info("Discord bot logged in");
-  const channel = client.channels.cache.get(process.env.CHANNEL_ID);
-  console.log(channel);
-  /* const floorPoll = async (resolve, reject) => {
-    const {
-      data: { events: floorData },
-    } = await axios.get(
-      `https://api.reservoir.tools/events/collections/floor-ask/v1?collection=${contractAddress}&sortDirection=desc&limit=1`
-    );
-    const initial = parseFloat(await redisClient.get("floorprice"));
-    if (floorData[0].floorAsk.price < initial) {
-      await redisClient.set("floorprice", floorData[0].floorAsk.price);
-      const value = await redisClient.get("floorprice");
-      const {
-        data: { tokens: floorToken },
-      } = await axios.get(
-        `https://api.reservoir.tools/tokens/v5?tokens=${floorData[0].floorAsk.contract}%3A${floorData[0].floorAsk.tokenId}&sortBy=floorAskPrice&limit=20&includeTopBid=false&includeAttributes=true`
-      );
+  const channel = client.channels.cache.get(CHANNEL_ID);
+  if (!channel) {
+    logger.error("Could not connect to channel");
+    throw new Error("Could not connect to channel");
+  } else if (channel.type !== ChannelType.GuildText) {
+    logger.error("Channel is not a text channel");
+    throw new Error("Channel is not a text channel");
+  }
 
-      const attributes = floorToken[0].token.attributes.map((attr) => {
-        return { name: attr.key, value: attr.value, inline: true };
-      });
-      const floorEmbed = new EmbedBuilder()
-        .setColor(0x8b43e0)
-        .setTitle("New Floor Listing!")
-        .setAuthor({
-          name: `${floorToken[0].token.collection.name}`,
-          url: "https://reservoir.tools/",
-          iconURL: `${floorToken[0].token.collection.image}`,
-        })
-        .setDescription(
-          `${
-            floorToken[0].token.name
-          } was just listed for ${value}Ξ by [${floorToken[0].token.owner.substring(
-            0,
-            6
-          )}](https://www.reservoir.market/address/${floorToken[0].token.owner})
-          Last Sale: ${floorToken[0].token.lastSell.value}Ξ
-          Rarity Rank: ${floorToken[0].token.rarityRank}
-          
-          `
-        )
-        .addFields(attributes)
-        .setThumbnail(`${floorToken[0].token.image}`)
-        .setTimestamp();
-
-      const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setLabel("Purchase")
-          .setStyle("Link")
-          .setURL(
-            `https://www.reservoir.market/${floorData[0].floorAsk.contract}/${floorData[0].floorAsk.tokenId}`
-          )
-      );
-      channel.send({ embeds: [floorEmbed], components: [row] });
-    }
-
-    setTimeout(floorPoll, 2500, resolve, reject);
-  };
-
-  const offerPoll = async (resolve, reject) => {
-    const {
-      data: { events: bidData },
-    } = await axios.get(
-      `https://api.reservoir.tools/events/collections/top-bid/v1?collection=${contractAddress}&sortDirection=desc&limit=1`
-    );
-    const initial = parseFloat(await redisClient.get("topbid"));
-    if (bidData[0].topBid.price > initial) {
-      await redisClient.set("topbid", bidData[0].topBid.price);
-      const value = await redisClient.get("topbid");
-      const {
-        data: { collections: bidCollData },
-      } = await axios.get(
-        `https://api.reservoir.tools/collections/v5?id=${contractAddress}&includeTopBid=false&sortBy=allTimeVolume&limit=1`
-      );
-      const bidEmbed = new EmbedBuilder()
-        .setColor(0x8b43e0)
-        .setTitle("New Top Bid!")
-        .setAuthor({
-          name: `${bidCollData[0].name}`,
-          url: "https://reservoir.tools/",
-          iconURL: `${bidCollData[0].image}`,
-        })
-        .setDescription(
-          `The top bid on the collection just went up to ${value}Ξ made by [${bidData[0].topBid.maker.substring(
-            0,
-            6
-          )}](https://www.reservoir.market/address/${bidData[0].topBid.maker})`
-        )
-        .setThumbnail(`${bidCollData[0].image}`)
-        .setTimestamp();
-      channel.send({ embeds: [bidEmbed] });
-    }
-    setTimeout(offerPoll, 2500, resolve, reject);
-  };
-
-  await floorPoll();
-  await offerPoll(); */
+  await floorPoll(channel, TRACKED_CONTRACT);
+  await bidPoll(channel, TRACKED_CONTRACT);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -161,10 +102,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   if (interaction.commandName === "collection") {
     try {
-      const options = interaction.options._hoistedOptions;
-      const name =
-        options[options.findIndex((obj) => obj.name == "name")].value;
-      let limit = 5;
+      const { value: name } = interaction.options.get("name", true);
+      let limit = interaction.options.get("limit", false)?.value || -1;
+
+      if (!name) {
+        logger.error("No collection name recieved");
+        throw new Error("No collection name recieved");
+      }
+
+      if (!limit) {
+        limit = 5;
+      }
+
       let contracts = "";
 
       if (options.findIndex((obj) => obj.name == "limit") != -1) {
