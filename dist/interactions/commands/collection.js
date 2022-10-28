@@ -32,6 +32,12 @@ function collection(interaction) {
             logger_1.default.error("Unknown limit value received");
             throw new Error("Unknown limit value received");
         }
+        if (limit > 20) {
+            limit = 20;
+        }
+        else if (limit < 1) {
+            limit = 1;
+        }
         const searchDataRes = yield sdk.getCollectionsV5({
             name: name,
             includeTopBid: "false",

@@ -38,10 +38,12 @@ function floorPoll(channel, contractAddress) {
         }
         // pull initial floor ask event id
         const initialId = yield redis.get("flooreventid");
-        logger_1.default.info("initial floor id: " +
+        /* logger.info(
+          "initial floor id: " +
             typeof Number(initialId) +
             " | current floor id: " +
-            typeof Number(floorAsk.event.id));
+            typeof floorAsk.event.id
+        ); */
         if (Number(floorAsk.event.id) !== Number(initialId)) {
             // setting new floor ask event id
             const success = yield redis.set("flooreventid", floorAsk.event.id.toString());

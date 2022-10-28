@@ -13,7 +13,7 @@ export async function bidselect(interaction: SelectMenuInteraction<CacheType>) {
 
   const searchDataRes = await sdk.getCollectionsV5({
     id: id,
-    includeTopBid: "false",
+    includeTopBid: "true",
     sortBy: "allTimeVolume",
     limit: "1",
     accept: "*/*",
@@ -35,8 +35,10 @@ export async function bidselect(interaction: SelectMenuInteraction<CacheType>) {
         .setTitle(`Collection Top Bid`)
         .setAuthor({
           name: searchData.name,
-          url: "https://reservoir.tools/",
-          iconURL: searchData.image,
+          url: `https://reservoir.tools/${searchData.id}`,
+          iconURL:
+            searchData.image ??
+            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024",
         })
         .setDescription(
           `The top bid on the collection is ${
@@ -46,21 +48,25 @@ export async function bidselect(interaction: SelectMenuInteraction<CacheType>) {
             6
           )}](https://www.reservoir.market/address/${searchData.topBid.maker})`
         )
-        .setThumbnail(searchData.image ?? null)
+        .setThumbnail(
+          searchData.image ??
+            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024"
+        )
         .setTimestamp();
 
       await interaction.update({
         embeds: [bidEmbed],
       });
-      return;
     } else if (searchData.topBid.price.amount?.native) {
       const bidEmbed = new EmbedBuilder()
         .setColor(0x8b43e0)
         .setTitle(`Collection Top Bid`)
         .setAuthor({
           name: searchData.name,
-          url: "https://reservoir.tools/",
-          iconURL: `${searchData.image}`,
+          url: `https://reservoir.tools/${searchData.id}`,
+          iconURL:
+            searchData.image ??
+            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024",
         })
         .setDescription(
           `The top bid on the collection is ${
@@ -70,13 +76,15 @@ export async function bidselect(interaction: SelectMenuInteraction<CacheType>) {
             6
           )}](https://www.reservoir.market/address/${searchData.topBid.maker})`
         )
-        .setThumbnail(searchData.image ?? null)
+        .setThumbnail(
+          searchData.image ??
+            "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024"
+        )
         .setTimestamp();
 
       await interaction.update({
         embeds: [bidEmbed],
       });
-      return;
     }
   } else {
     const bidEmbed = new EmbedBuilder()
@@ -84,15 +92,21 @@ export async function bidselect(interaction: SelectMenuInteraction<CacheType>) {
       .setTitle(`Collection Top Bid`)
       .setAuthor({
         name: searchData.name,
-        url: "https://reservoir.tools/",
-        iconURL: `${searchData.image}`,
+        url: `https://reservoir.tools/${searchData.id}`,
+        iconURL:
+          searchData.image ??
+          "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024",
       })
       .setDescription(`No bids found for ${searchData.name}`)
-      .setThumbnail(searchData.image ?? null)
+      .setThumbnail(
+        searchData.image ??
+          "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024"
+      )
       .setTimestamp();
 
     await interaction.update({
       embeds: [bidEmbed],
     });
   }
+  logger.info("Updated topbid embed");
 }

@@ -25,7 +25,7 @@ export async function statselect(
 
   const searchData = searchDataResponse.collections?.[0];
 
-  if (!searchData) {
+  if (!searchData || !searchData.name) {
     logger.error("Could not collect stats");
     throw new Error("Could not collect stats");
   }
@@ -34,9 +34,10 @@ export async function statselect(
     .setColor(0x8b43e0)
     .setTitle(`${searchData.name} Stats`)
     .setAuthor({
-      name: "Reservoir Bot",
-      url: "https://reservoir.tools/",
+      name: searchData.name,
+      url: `https://reservoir.tools/${searchData.id}`,
       iconURL:
+        searchData.image ??
         "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024",
     })
     .setDescription(
@@ -45,11 +46,13 @@ export async function statselect(
       7 day volume: ${searchData.volume?.["7day"]}`
     )
     .setThumbnail(
-      "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024"
+      searchData.image ??
+        "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=1024"
     )
     .setTimestamp();
 
   await interaction.update({
     embeds: [statEmbed],
   });
+  logger.info("Updated stats embed");
 }

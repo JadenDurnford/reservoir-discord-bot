@@ -19,6 +19,8 @@ const bidPoll_1 = require("./bidPoll");
 const collection_1 = require("../interactions/commands/collection");
 const stats_1 = require("../interactions/commands/stats");
 const topbid_1 = require("../interactions/commands/topbid");
+const statselect_1 = require("../interactions/selectmenu/statselect");
+const bidselect_1 = require("../interactions/selectmenu/bidselect");
 class Discord {
     constructor() {
         this.client = new discord_js_1.Client({
@@ -77,8 +79,12 @@ class Discord {
                 return;
             switch (interaction.customId) {
                 case "statselect": {
+                    yield (0, statselect_1.statselect)(interaction);
+                    break;
                 }
                 case "bidselect": {
+                    yield (0, bidselect_1.bidselect)(interaction);
+                    break;
                 }
                 default: {
                     logger_1.default.error("Unknown Select Command");

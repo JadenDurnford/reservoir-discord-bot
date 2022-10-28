@@ -35,3 +35,108 @@
 [2022-10-28T03:02:37.254Z ([32minfo[39m)] initial bid id: number | current bid id: number
 [2022-10-28T03:02:38.778Z ([32minfo[39m)] initial floor id: number | current floor id: number
 [2022-10-28T03:02:40.077Z ([32minfo[39m)] initial bid id: number | current bid id: number
+[2022-10-28T03:04:41.975Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:04:42.299Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:05:02.269Z ([32minfo[39m)] Successfully called collection command: name=forgotten, limit=5
+[2022-10-28T03:06:59.644Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:07:00.026Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:07:08.294Z ([32minfo[39m)] Successfully called collection command: name=forgotten, limit=20
+[2022-10-28T03:07:13.943Z ([32minfo[39m)] Successfully called collection command: name=forgotten, limit=1
+[2022-10-28T03:07:19.719Z ([32minfo[39m)] Successfully called collection command: name=forgotten, limit=13
+[2022-10-28T03:07:28.857Z ([32minfo[39m)] Successfully called collection command: name=fdssafsdf, limit=5
+[2022-10-28T03:07:39.915Z ([32minfo[39m)] Successfully called stats command: name=forgotten
+[2022-10-28T03:07:43.774Z ([31merror[39m)] Unknown Select Command
+[2022-10-28T03:07:46.520Z ([31merror[39m)] Unknown Select Command
+[2022-10-28T03:07:48.816Z ([31merror[39m)] Unknown Select Command
+[2022-10-28T03:08:34.132Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:08:34.651Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:08:38.632Z ([32minfo[39m)] Successfully called stats command: name=forgotten
+[2022-10-28T03:10:22.981Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:10:23.742Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:10:28.061Z ([32minfo[39m)] Successfully called stats command: name=bored
+[2022-10-28T03:13:14.622Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:13:15.051Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:13:19.252Z ([32minfo[39m)] Successfully called stats command: name=doodles
+[2022-10-28T03:14:47.225Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:14:47.628Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:14:52.248Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:15:01.873Z ([31merror[39m)] Unknown Select Command
+[2022-10-28T03:17:22.042Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:17:22.405Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:17:28.545Z ([32minfo[39m)] Successfully called stats command: name=forgotten
+[2022-10-28T03:19:19.824Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:19:20.233Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:19:25.758Z ([32minfo[39m)] Successfully called stats command: name=doodles
+[2022-10-28T03:19:27.697Z ([32minfo[39m)] Updated stats embed
+[2022-10-28T03:19:29.014Z ([32minfo[39m)] Updated stats embed
+[2022-10-28T03:19:30.328Z ([32minfo[39m)] Updated stats embed
+[2022-10-28T03:19:31.854Z ([32minfo[39m)] Updated stats embed
+[2022-10-28T03:19:32.976Z ([32minfo[39m)] Updated stats embed
+[2022-10-28T03:19:38.376Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:19:40.390Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:42.274Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:44.429Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:45.912Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:49.102Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:50.865Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:52.509Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:54.170Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:19:55.438Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:23:50.975Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:23:51.305Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:23:54.667Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:23:56.488Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:23:58.672Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:24:00.891Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:24:07.446Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:24:09.060Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:24:10.773Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:25:30.389Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:25:30.795Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:25:33.073Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:25:35.862Z ([32minfo[39m)] Top bid price: undefined
+[2022-10-28T03:25:36.009Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:25:56.141Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:25:56.485Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:25:58.161Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:26:00.320Z ([32minfo[39m)] Top bid price: [object Object]
+[2022-10-28T03:26:00.450Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:26:31.406Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:26:31.740Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:26:35.304Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:26:37.899Z ([32minfo[39m)] Top bid price: undefined
+[2022-10-28T03:26:38.045Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:05.170Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:27:05.600Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:27:07.077Z ([32minfo[39m)] Successfully called topbid command: name=forgotten
+[2022-10-28T03:27:08.984Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:10.951Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:12.481Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:14.182Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:16.905Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:19.229Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:20.779Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:25.405Z ([32minfo[39m)] Successfully called topbid command: name=doodles
+[2022-10-28T03:27:27.329Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:29.508Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:31.242Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:33.089Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:35.644Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:27:37.964Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:29:09.052Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:29:09.390Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:29:13.806Z ([32minfo[39m)] Successfully called topbid command: name=doodles
+[2022-10-28T03:29:18.771Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:29:21.197Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:29:23.162Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:29:25.070Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:30:08.806Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:30:09.342Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:30:14.184Z ([32minfo[39m)] Successfully called topbid command: name=doodles
+[2022-10-28T03:30:17.678Z ([32minfo[39m)] https://i.seadn.io/gae/EVGmlNOYT4yeXYKOpt1f_BRpzouJyCSuWxefy2YoDlsuP8ftVSFOKtaVQdN7AOsUfsb_dVfk7PA-54V1ECe4MNks4jCMdmYdcGPjwg?w=500&auto=format
+[2022-10-28T03:30:17.854Z ([32minfo[39m)] Updated topbid embed
+[2022-10-28T03:31:03.784Z ([32minfo[39m)] Successfully called collection command: name=doodles, limit=5
+[2022-10-28T03:31:29.872Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:31:30.262Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:31:30.730Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T03:31:31.169Z ([32minfo[39m)] Successfully alerted new top bid

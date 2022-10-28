@@ -27,6 +27,12 @@ export async function collection(
     throw new Error("Unknown limit value received");
   }
 
+  if (limit > 20) {
+    limit = 20;
+  } else if (limit < 1) {
+    limit = 1;
+  }
+
   const searchDataRes = await sdk.getCollectionsV5({
     name: name,
     includeTopBid: "false",

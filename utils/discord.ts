@@ -11,6 +11,8 @@ import { bidPoll } from "./bidPoll";
 import { collection } from "../interactions/commands/collection";
 import { stats } from "../interactions/commands/stats";
 import { topbid } from "../interactions/commands/topbid";
+import { statselect } from "../interactions/selectmenu/statselect";
+import { bidselect } from "../interactions/selectmenu/bidselect";
 
 export default class Discord {
   client = new Client({
@@ -68,8 +70,12 @@ export default class Discord {
 
     switch (interaction.customId) {
       case "statselect": {
+        await statselect(interaction);
+        break;
       }
       case "bidselect": {
+        await bidselect(interaction);
+        break;
       }
       default: {
         logger.error("Unknown Select Command");

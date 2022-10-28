@@ -34,10 +34,12 @@ function bidPoll(channel, contractAddress) {
             throw new Error("Could not pull top bid");
         }
         const initialId = yield redis.get("bideventid");
-        logger_1.default.info("initial bid id: " +
+        /* logger.info(
+          "initial bid id: " +
             typeof Number(initialId) +
             " | current bid id: " +
-            typeof Number(topBid.event.id));
+            typeof topBid.event.id
+        ); */
         if (Number(topBid.event.id) !== Number(initialId)) {
             const success = yield redis.set("bideventid", topBid.event.id.toString());
             if (success !== "OK") {
