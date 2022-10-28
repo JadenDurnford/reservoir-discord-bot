@@ -11,8 +11,6 @@ import logger from "./logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 export async function floorPoll(channel: TextChannel, contractAddress: string) {
-  await redis.connect();
-
   const floorAskRes = await sdk.getEventsCollectionsFlooraskV1({
     collection: contractAddress,
     sortDirection: "desc",
@@ -74,7 +72,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
     // create attributes array if they exist
     let attributes:
       | { name: string; value: string; inline: boolean }[]
-      | undefined = undefined;
+      | undefined;
     if (floorToken.token.attributes) {
       attributes = floorToken.token.attributes.map((attr) => {
         return { name: attr.key ?? "", value: attr.value ?? "", inline: true };

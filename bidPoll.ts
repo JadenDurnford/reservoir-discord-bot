@@ -6,8 +6,6 @@ import logger from "./logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 export async function bidPoll(channel: TextChannel, contractAddress: string) {
-  await redis.connect();
-
   const topBidRes = await sdk.getEventsCollectionsTopbidV1({
     collection: contractAddress,
     sortDirection: "desc",
