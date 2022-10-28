@@ -5,7 +5,10 @@ import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "./logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
-export async function bidPoll(channel: TextChannel, contractAddress: string) {
+export async function bidPoll(
+  channel: TextChannel,
+  contractAddress: string
+): Promise<void> {
   const topBidRes = await sdk.getEventsCollectionsTopbidV1({
     collection: contractAddress,
     sortDirection: "desc",
@@ -23,7 +26,13 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
   }
 
   const initialId: string | null = await redis.get("bideventid");
-  if (topBid.event.id !== Number(initialId)) {
+  /* logger.info(
+    "initial bid id: " +
+      typeof Number(initialId) +
+      " | current bid id: " +
+      typeof topBid.event.id
+  ); */
+  if (Number(topBid.event.id) !== Number(initialId)) {
     const success: "OK" = await redis.set(
       "bideventid",
       topBid.event.id.toString()
@@ -33,7 +42,7 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
       throw new Error("Could not set new topbid eventid");
     }
 
-    const bidCollection = await sdk.getCollectionsV5({
+    const bidCollectionRes = await sdk.getCollectionsV5({
       id: contractAddress,
       includeTopBid: "false",
       sortBy: "allTimeVolume",
@@ -41,13 +50,23 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
       accept: "*/*",
     });
 
+    const bidCollectionResponse =
+      bidCollectionRes as paths["/collections/v5"]["get"]["responses"]["200"]["schema"];
+
+    const bidCollection = bidCollectionResponse.collections?.[0];
+
+    if (!bidCollection || !bidCollection.name) {
+      logger.error("Could not collect stats");
+      throw new Error("Could not collect stats");
+    }
+
     const bidEmbed = new EmbedBuilder()
       .setColor(0x8b43e0)
       .setTitle("New Top Bid!")
       .setAuthor({
-        name: `${bidCollection.name}`,
+        name: bidCollection.name,
         url: "https://reservoir.tools/",
-        iconURL: `${bidCollection.image}`,
+        iconURL: bidCollection.image,
       })
       .setDescription(
         `The top bid on the collection just changed to ${
@@ -57,10 +76,10 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
           6
         )}](https://www.reservoir.market/address/${topBid.topBid.maker})`
       )
-      .setThumbnail(`${bidCollection.image}`)
+      .setThumbnail(bidCollection.image ?? null)
       .setTimestamp();
     channel.send({ embeds: [bidEmbed] });
-    logger.info("Successfully alert new top bid");
+    logger.info("Successfully alerted new top bid");
   }
-  setTimeout(bidPoll, 2500);
+  setTimeout(bidPoll, 2500, channel, contractAddress);
 }

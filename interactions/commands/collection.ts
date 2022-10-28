@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
 } from "discord.js";
-import logger from "../logger";
+import logger from "../../utils/logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 import { paths } from "@reservoir0x/reservoir-kit-client";
 

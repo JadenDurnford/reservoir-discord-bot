@@ -5,7 +5,7 @@ import {
   SelectMenuBuilder,
   ActionRowBuilder,
 } from "discord.js";
-import logger from "../logger";
+import logger from "../../utils/logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 import { paths } from "@reservoir0x/reservoir-kit-client";
 
@@ -37,7 +37,7 @@ export async function topbid(
   }
 
   let fieldValue = "";
-  let selectOptions: { label: string; value: string }[] | undefined;
+  let selectOptions: { label: string; value: string }[] = [];
 
   searchData.forEach((collection, i) => {
     fieldValue += `**${i + 1}. [${
@@ -48,7 +48,7 @@ export async function topbid(
       logger.error("Could not collect collection details");
       throw new Error("Could not collect collection details");
     }
-    selectOptions?.push({ label: collection.name, value: collection.id });
+    selectOptions.push({ label: collection.name, value: collection.id });
   });
 
   const bidEmbed = new EmbedBuilder()
@@ -78,7 +78,7 @@ export async function topbid(
       .setPlaceholder("Nothing selected")
       .setMinValues(1)
       .setMaxValues(1)
-      .addOptions(selectOptions ?? [])
+      .addOptions(selectOptions)
   );
 
   await interaction.reply({

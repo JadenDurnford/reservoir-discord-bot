@@ -8,9 +8,9 @@ import {
 import logger from "./logger";
 import { floorPoll } from "./floorPoll";
 import { bidPoll } from "./bidPoll";
-import { collection } from "./commands/collection";
-import { stats } from "./commands/stats";
-import { topbid } from "./commands/topbid";
+import { collection } from "../interactions/commands/collection";
+import { stats } from "../interactions/commands/stats";
+import { topbid } from "../interactions/commands/topbid";
 
 export default class Discord {
   client = new Client({
@@ -38,7 +38,7 @@ export default class Discord {
     await bidPoll(channel, TRACKED_CONTRACT);
   }
 
-  async handleChatCommand(interaction: Interaction<CacheType>) {
+  async handleChatCommandInteraction(interaction: Interaction<CacheType>) {
     if (!interaction.isChatInputCommand()) return;
 
     switch (interaction.commandName) {
@@ -58,6 +58,23 @@ export default class Discord {
         logger.error("Unknown Command");
         await interaction.reply({
           content: "Error: Unknown Command",
+        });
+      }
+    }
+  }
+
+  async handleSelectMenuInteraction(interaction: Interaction<CacheType>) {
+    if (!interaction.isSelectMenu()) return;
+
+    switch (interaction.customId) {
+      case "statselect": {
+      }
+      case "bidselect": {
+      }
+      default: {
+        logger.error("Unknown Select Command");
+        await interaction.reply({
+          content: "Error: Unknown Selection",
         });
       }
     }

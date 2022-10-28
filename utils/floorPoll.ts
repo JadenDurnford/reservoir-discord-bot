@@ -34,8 +34,13 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
 
   // pull initial floor ask event id
   const initialId: string | null = await redis.get("flooreventid");
-
-  if (floorAsk.event.id !== Number(initialId)) {
+  /* logger.info(
+    "initial floor id: " +
+      typeof Number(initialId) +
+      " | current floor id: " +
+      typeof floorAsk.event.id
+  ); */
+  if (Number(floorAsk.event.id) !== Number(initialId)) {
     // setting new floor ask event id
     const success: "OK" = await redis.set(
       "flooreventid",
@@ -70,13 +75,13 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
     }
 
     // create attributes array if they exist
-    let attributes:
-      | { name: string; value: string; inline: boolean }[]
-      | undefined;
+    let attributes: { name: string; value: string; inline: boolean }[] | [];
     if (floorToken.token.attributes) {
       attributes = floorToken.token.attributes.map((attr) => {
         return { name: attr.key ?? "", value: attr.value ?? "", inline: true };
       });
+    } else {
+      attributes = [];
     }
 
     const floorEmbed = new EmbedBuilder()
@@ -99,7 +104,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
         
         `
       )
-      .addFields(attributes ?? [])
+      .addFields(attributes)
       .setThumbnail(`${floorToken.token.image}`)
       .setTimestamp();
 
@@ -114,5 +119,5 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
     channel.send({ embeds: [floorEmbed], components: [row] });
     logger.info("Successfully alerted new floor price");
   }
-  setTimeout(floorPoll, 2500);
+  setTimeout(floorPoll, 2500, channel, contractAddress);
 }

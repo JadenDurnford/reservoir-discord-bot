@@ -1,0 +1,37 @@
+[2022-10-28T02:39:25.620Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T02:39:26.024Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T02:39:27.004Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:43:54.230Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T02:43:54.625Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T02:43:55.194Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:43:55.619Z ([32minfo[39m)] Successfully alert new top bid
+[2022-10-28T02:43:58.383Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:43:58.410Z ([32minfo[39m)] Successfully alert new top bid
+[2022-10-28T02:44:01.200Z ([32minfo[39m)] Successfully alert new top bid
+[2022-10-28T02:44:01.737Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:55:42.535Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T02:55:42.965Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T02:55:43.207Z ([32minfo[39m)] initial floor id: 7998620 | current floor id: 7998620
+[2022-10-28T02:55:43.451Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:55:43.703Z ([32minfo[39m)] initial bid id: 5103709 | current bid id: 5103709
+[2022-10-28T02:55:43.901Z ([32minfo[39m)] Successfully alerted new top bid
+[2022-10-28T02:55:46.139Z ([32minfo[39m)] initial floor id: 7998620 | current floor id: 7998620
+[2022-10-28T02:55:46.328Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:55:46.596Z ([32minfo[39m)] initial bid id: 5103709 | current bid id: 5103709
+[2022-10-28T02:55:46.651Z ([32minfo[39m)] Successfully alerted new top bid
+[2022-10-28T02:57:10.059Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T02:57:10.440Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T02:57:10.800Z ([32minfo[39m)] initial floor id: number | current floor id: string
+[2022-10-28T02:57:11.278Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T02:57:11.510Z ([32minfo[39m)] initial bid id: number | current bid id: string
+[2022-10-28T02:57:11.837Z ([32minfo[39m)] Successfully alerted new top bid
+[2022-10-28T02:57:13.960Z ([32minfo[39m)] initial floor id: number | current floor id: string
+[2022-10-28T02:57:14.152Z ([32minfo[39m)] Successfully alerted new floor price
+[2022-10-28T03:02:32.355Z ([32minfo[39m)] Connected to Redis client.
+[2022-10-28T03:02:32.836Z ([32minfo[39m)] Discord bot logged in
+[2022-10-28T03:02:33.173Z ([32minfo[39m)] initial floor id: number | current floor id: number
+[2022-10-28T03:02:34.458Z ([32minfo[39m)] initial bid id: number | current bid id: number
+[2022-10-28T03:02:35.943Z ([32minfo[39m)] initial floor id: number | current floor id: number
+[2022-10-28T03:02:37.254Z ([32minfo[39m)] initial bid id: number | current bid id: number
+[2022-10-28T03:02:38.778Z ([32minfo[39m)] initial floor id: number | current floor id: number
+[2022-10-28T03:02:40.077Z ([32minfo[39m)] initial bid id: number | current bid id: number
