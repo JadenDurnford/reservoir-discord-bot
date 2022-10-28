@@ -15,7 +15,7 @@ const logger = winston.createLogger({
     // Output to console
     new winston.transports.Console(),
     // Output to logfile
-    new winston.transports.File({ filename: "stats.log", level: "debug" }),
+    new winston.transports.File({ filename: "discord.log", level: "debug" }),
   ],
 });
 

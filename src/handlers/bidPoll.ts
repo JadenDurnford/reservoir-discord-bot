@@ -2,13 +2,19 @@ import Redis from "ioredis";
 import { TextChannel, EmbedBuilder } from "discord.js";
 const redis = new Redis();
 import { paths } from "@reservoir0x/reservoir-kit-client";
-import logger from "./logger";
+import logger from "../utils/logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 export async function bidPoll(
   channel: TextChannel,
   contractAddress: string
 ): Promise<void> {
+  enum params {
+    collection,
+    limit,
+    accept = "*/*",
+  }
+
   const topBidRes = await sdk.getEventsCollectionsTopbidV1({
     collection: contractAddress,
     sortDirection: "desc",
@@ -26,17 +32,9 @@ export async function bidPoll(
   }
 
   const initialId: string | null = await redis.get("bideventid");
-  /* logger.info(
-    "initial bid id: " +
-      typeof Number(initialId) +
-      " | current bid id: " +
-      typeof topBid.event.id
-  ); */
+
   if (Number(topBid.event.id) !== Number(initialId)) {
-    const success: "OK" = await redis.set(
-      "bideventid",
-      topBid.event.id.toString()
-    );
+    const success: "OK" = await redis.set("bideventid", topBid.event.id);
     if (success !== "OK") {
       logger.error("Could not set new topbid eventid");
       throw new Error("Could not set new topbid eventid");
@@ -76,10 +74,11 @@ export async function bidPoll(
           6
         )}](https://www.reservoir.market/address/${topBid.topBid.maker})`
       )
+      // FIXME:
       .setThumbnail(bidCollection.image ?? null)
       .setTimestamp();
+
     channel.send({ embeds: [bidEmbed] });
     logger.info("Successfully alerted new top bid");
   }
-  setTimeout(bidPoll, 2500, channel, contractAddress);
 }
