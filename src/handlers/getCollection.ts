@@ -2,11 +2,19 @@ const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 
+/**
+ * Retrieve collection data from Reservoir
+ * @param {string} name collection name to search for
+ * @param {string} contractAddress collection address to search
+ * @param {number} limit number of collections to return
+ * @param {boolean} includeTopBid whether to include top bid info or not
+ * @returns array of collection info
+ */
 export default async function getCollection(
   name?: string,
   contractAddress?: string,
   limit?: number | string | boolean,
-  includeTopBid?: boolean
+  includeTopBid: boolean = false
 ): Promise<
   paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]
 > {
@@ -25,11 +33,11 @@ export default async function getCollection(
   const selector = contractAddress ? { id: contractAddress } : { name: name };
 
   try {
-    // Get collection data
+    // Pull collection data from Reservoir
     const searchDataResponse: paths["/collections/v5"]["get"]["responses"]["200"]["schema"] =
       await sdk.getCollectionsV5({
         ...selector,
-        includeTopBid: includeTopBid ?? false,
+        includeTopBid: includeTopBid,
         sortBy: "allTimeVolume",
         limit: limit,
         accept: "*/*",

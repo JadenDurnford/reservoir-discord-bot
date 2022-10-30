@@ -2,8 +2,12 @@ import { CacheType, SelectMenuInteraction } from "discord.js";
 import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { selectionEmbedGen } from "../utils/generators";
-import { selectMenuType } from "../utils/types";
+import { SelectMenuType } from "../utils/types";
 
+/**
+ * Handle to discord select menu interaction
+ * @param {SelectMenuInteraction<CacheType>} interaction discord select menu interaction
+ */
 export async function replySelectInteraction(
   interaction: SelectMenuInteraction<CacheType>
 ) {
@@ -35,16 +39,16 @@ export async function replySelectInteraction(
 
   // Adding embed details depending on select menu used
   switch (interaction.customId) {
-    case selectMenuType.statMenu: {
+    case SelectMenuType.statMenu: {
       // Adding details for stat menu selected
-      selectionEmbed.setTitle(`${searchData.name} Stats`).setDescription(
-        `Token Count: ${searchData.tokenCount}
-        On Sale Count: ${searchData.onSaleCount}
-        7 day volume: ${searchData.volume?.["7day"]}`
-      );
+      selectionEmbed
+        .setTitle(`${searchData.name} Stats`)
+        .setDescription(
+          `Token Count: ${searchData.tokenCount}\nOn Sale Count: ${searchData.onSaleCount}\n7 day volume: ${searchData.volume?.["7day"]}`
+        );
       break;
     }
-    case selectMenuType.bidMenu: {
+    case SelectMenuType.bidMenu: {
       // Adding details for bid menu selected
       selectionEmbed.setTitle(`${searchData.name} Top Bid`);
 
@@ -70,6 +74,7 @@ export async function replySelectInteraction(
       await interaction.update({
         content: "Error: Unknown Selection",
       });
+      return;
     }
   }
 

@@ -1,19 +1,26 @@
 import Redis from "ioredis";
 import { TextChannel, EmbedBuilder } from "discord.js";
-const redis = new Redis();
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 import constants from "../utils/constants";
 import getCollection from "./getCollection";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
+/**
+ * Check top bid events to see if a new one was created since last alert
+ * @param {TextChannel} channel channel to send top bid alert to
+ * @param {string} contractAddress collection to check for top bid events
+ */
 export async function bidPoll(channel: TextChannel, contractAddress: string) {
-  // Getting top bid events
+  // Setting up Redis
+  const redis = new Redis();
+
+  // Getting top bid events from Reservoir
   const topBidResponse: paths["/events/collections/top-bid/v1"]["get"]["responses"]["200"]["schema"] =
     await sdk.getEventsCollectionsTopbidV1({
       collection: contractAddress,
       sortDirection: "desc",
-      limit: "1",
+      limit: 1,
       accept: "*/*",
     });
 
@@ -29,18 +36,19 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
   // Pull cached top bid event id from Redis
   const cachedId: string | null = await redis.get("bideventid");
 
+  // If most recent event matchs cached event exit function
+  if (Number(topBid.event.id) === Number(cachedId)) {
+    return;
+  }
+
   // Pull cooldown for floor ask alert from Redis
   const eventCooldown: string | null = await redis.get("bidcooldown");
 
   // Pull cached top bid price from Redis
   const cachedPrice: string | null = await redis.get("bidprice");
 
-  // If most recent event doesn't match cached event and process not on cooldown generate alert
-  if (
-    Number(topBid.event.id) !== Number(cachedId) &&
-    Number(topBid.topBid.price) !== Number(cachedPrice) &&
-    !eventCooldown
-  ) {
+  // If the cached price does not match the most recent price (false updates due to sudoswap pools) and process not on cooldown generate alert
+  if (Number(topBid.topBid.price) !== Number(cachedPrice) && !eventCooldown) {
     // setting updated top bid event id
     const success: "OK" = await redis.set("bideventid", topBid.event.id);
     // setting updated top bid cooldown
@@ -57,7 +65,7 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
       throw new Error("Could not set new topbid eventid");
     }
 
-    // Getting top bid collection
+    // Getting top bid collection from Reservoir
     const bidCollectionResponse = await getCollection(
       undefined,
       contractAddress,

@@ -3,6 +3,10 @@ import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { baseEmbedGen, selectMenuGen } from "../utils/generators";
 
+/**
+ * Handle to discord chat interaction
+ * @param {ChatInputCommandInteraction<CacheType>} interaction discord chat interaction
+ */
 export default async function replyChatInteraction(
   interaction: ChatInputCommandInteraction<CacheType>
 ) {
@@ -28,7 +32,7 @@ export default async function replyChatInteraction(
   }
 
   // Creating array of options for select menu if they exist
-  let selectOptions: { label: string; value: string }[] = searchData.map(
+  const selectOptions: { label: string; value: string }[] = searchData.map(
     (collection) => {
       // Log failure + throw if name or contract address don't exist for an option
       if (!collection.name || !collection.id) {

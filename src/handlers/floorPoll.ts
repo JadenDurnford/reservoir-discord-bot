@@ -5,22 +5,25 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
 } from "discord.js";
-const redis = new Redis();
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
-import RelativeTime from "@yaireo/relative-time";
 
+/**
+ * Check floor price events to see if it has changed since last alert
+ * @param {TextChannel} channel channel to send floor price alert to
+ * @param {string} contractAddress collection to check for top bid events
+ */
 export async function floorPoll(channel: TextChannel, contractAddress: string) {
-  // Setting up relative time
-  const relativeTime = new RelativeTime();
+  // Setting up Redis
+  const redis = new Redis();
 
-  // Getting floor ask events
+  // Getting floor ask events from Reservoir
   const floorAskResponse: paths["/events/collections/floor-ask/v1"]["get"]["responses"]["200"]["schema"] =
     await sdk.getEventsCollectionsFlooraskV1({
       collection: contractAddress,
       sortDirection: "desc",
-      limit: "1",
+      limit: 1,
       accept: "*/*",
     });
 
@@ -40,6 +43,12 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
 
   // Pull cached floor ask event id from Redis
   const cachedId: string | null = await redis.get("flooreventid");
+  // Hot path: check recent event doesn't match cached event
+
+  // If most recent event matchs cached event exit function
+  if (Number(floorAsk.event.id) === Number(cachedId)) {
+    return;
+  }
 
   // Pull cooldown for floor ask alert from Redis
   let eventCooldown: string | null = await redis.get("floorcooldown");
@@ -55,8 +64,8 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
     eventCooldown = null;
   }
 
-  // If most recent event doesn't match cached event and process not on cooldown generate alert
-  if (Number(floorAsk.event.id) !== Number(cachedId) && !eventCooldown) {
+  // If process is not on cooldown generate alert
+  if (!eventCooldown) {
     // setting updated floor ask event id
     const idSuccess: "OK" = await redis.set("flooreventid", floorAsk.event.id);
     // setting updated floor ask cooldown
@@ -69,9 +78,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
     // setting updated floor ask price
     const priceSuccess: "OK" = await redis.set(
       "floorprice",
-      floorAsk.floorAsk.price,
-      "EX",
-      60
+      floorAsk.floorAsk.price
     );
 
     // Log failure + throw if floor ask info couldn't be set
@@ -84,7 +91,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
       throw new Error("Could not set new floorprice info");
     }
 
-    // Getting floor ask token
+    // Getting floor ask token from Reservoir
     const tokenResponse: paths["/tokens/v5"]["get"]["responses"]["200"]["schema"] =
       await sdk.getTokensV5({
         tokens: [`${contractAddress}:${floorAsk.floorAsk.tokenId}`],
@@ -110,7 +117,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
     }
 
     // create attributes array for discord fields if they attributes exist
-    let attributes: { name: string; value: string; inline: boolean }[] =
+    const attributes: { name: string; value: string; inline: boolean }[] =
       floorToken.token.attributes?.map((attr) => {
         return { name: attr.key ?? "", value: attr.value ?? "", inline: true };
       }) ?? [];
@@ -132,15 +139,13 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
           6
         )}](https://www.reservoir.market/address/${
           floorToken.token.owner
-        }) ${relativeTime.from(
-          new Date(floorAsk.event.createdAt)
-        )}\nLast Sale: ${floorToken.token.lastSell.value}Ξ\nRarity Rank: ${
+        })\nLast Sale: ${floorToken.token.lastSell.value}Ξ\nRarity Rank: ${
           floorToken.token.rarityRank
         }`
       )
       .addFields(attributes)
       .setThumbnail(`${floorToken.token.image}`)
-      .setTimestamp();
+      .setTimestamp(new Date(floorAsk.event.createdAt));
 
     // Generating floor token purchase button
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(

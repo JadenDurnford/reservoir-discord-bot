@@ -7,11 +7,11 @@ import { replySelectInteraction } from "./interactions/selectInteractions";
 
 export default class Discord {
   // Tracked Collection
-  contractAddress: string;
+  private contractAddress: string;
   // Discord channel to send alerts
-  channelId: string;
+  private channelId: string;
   // Discord Bot Token
-  token: string;
+  private token: string;
   // Setting Discord bot permissions
   client = new Client({
     intents: [
@@ -23,7 +23,7 @@ export default class Discord {
 
   /**
    * Initialize new Discord bot
-   * @param contractAddress Tracked Collection
+   * @param {string} contractAddress Tracked Collection
    * @param channelId Discord channel to send alerts
    * @param token Discord Bot Token
    */
@@ -33,6 +33,9 @@ export default class Discord {
     this.token = token;
   }
 
+  /**
+   * Check for new floor price and top bid events, and alert the channel if there are any
+   */
   async poll(): Promise<void> {
     // Getting bot channel
     const channel = this.client.channels.cache.get(this.channelId);

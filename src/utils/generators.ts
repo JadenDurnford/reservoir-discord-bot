@@ -2,8 +2,15 @@ import { EmbedBuilder, SelectMenuBuilder, ActionRowBuilder } from "discord.js";
 import constants from "./constants";
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "./logger";
+import { SelectMenuType } from "./types";
 
-// Basic discord embed template generator
+/**
+ * Basic discord embed template generator
+ * @param {string} name Collection name
+ * @param {paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]} searchData Collection info
+ * @param {string} fieldValue List of collections to display
+ * @returns Basic discord embed
+ */
 export function baseEmbedGen(
   name: string | undefined,
   searchData: paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"],
@@ -33,7 +40,11 @@ export function baseEmbedGen(
     .setTimestamp();
 }
 
-// Discord embed generator for select menu interaction
+/**
+ * Discord embed generator for select menu interaction
+ * @param {paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]} searchDataResponse Collection info
+ * @returns embed for discord selection interactions
+ */
 export function selectionEmbedGen(
   searchDataResponse: paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]
 ) {
@@ -58,36 +69,33 @@ export function selectionEmbedGen(
     .setTimestamp();
 }
 
-// Discord select menu action row generator
+/**
+ * Discord select menu action row generator
+ * @param {{ label: string; value: string }[]} selectOptions array of discord select menu options
+ * @returns array of discord action row select menu objects
+ */
 export function selectMenuGen(
   selectOptions: { label: string; value: string }[]
 ) {
-  // Creating stat select menu
-  const statSelectMenu = new SelectMenuBuilder()
-    .setCustomId("statselect")
-    .setPlaceholder("Select collection to view stats")
-    .setMinValues(1)
-    .setMaxValues(1)
-    .addOptions(selectOptions);
-
-  // Creating bid select menu
-  const bidSelectMenu = new SelectMenuBuilder()
-    .setCustomId("bidselect")
-    .setPlaceholder("Select collection to view top bid")
-    .setMinValues(1)
-    .setMaxValues(1)
-    .addOptions(selectOptions);
-
-  // Creating stat select action row
-  const statSelectRow = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    statSelectMenu
+  return [
+    // Set up component menus
+    {
+      id: SelectMenuType.statMenu,
+      placeholder: "Select collection to view stats",
+    },
+    {
+      id: SelectMenuType.bidMenu,
+      placeholder: "Select collection to top bid",
+    },
+  ].map(({ id, placeholder }) =>
+    // Create menu from component details
+    new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+      new SelectMenuBuilder()
+        .setCustomId(id)
+        .setPlaceholder(placeholder)
+        .setMinValues(1)
+        .setMaxValues(1)
+        .addOptions(selectOptions)
+    )
   );
-
-  // Creating bid select action row
-  const bidSelectRow = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    bidSelectMenu
-  );
-
-  // Return array of select action rows
-  return [statSelectRow, bidSelectRow];
 }
