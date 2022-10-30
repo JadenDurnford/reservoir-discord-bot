@@ -30,10 +30,17 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
   const cachedId: string | null = await redis.get("bideventid");
 
   // Pull cooldown for floor ask alert from Redis
-  let eventCooldown: string | null = await redis.get("bidcooldown");
+  const eventCooldown: string | null = await redis.get("bidcooldown");
+
+  // Pull cached top bid price from Redis
+  const cachedPrice: string | null = await redis.get("bidprice");
 
   // If most recent event doesn't match cached event and process not on cooldown generate alert
-  if (Number(topBid.event.id) !== Number(cachedId) && !eventCooldown) {
+  if (
+    Number(topBid.event.id) !== Number(cachedId) &&
+    Number(topBid.topBid.price) !== Number(cachedPrice) &&
+    !eventCooldown
+  ) {
     // setting updated top bid event id
     const success: "OK" = await redis.set("bideventid", topBid.event.id);
     // setting updated top bid cooldown

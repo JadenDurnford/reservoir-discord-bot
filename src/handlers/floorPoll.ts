@@ -9,8 +9,12 @@ const redis = new Redis();
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
+import RelativeTime from "@yaireo/relative-time";
 
 export async function floorPoll(channel: TextChannel, contractAddress: string) {
+  // Setting up relative time
+  const relativeTime = new RelativeTime();
+
   // Getting floor ask events
   const floorAskResponse: paths["/events/collections/floor-ask/v1"]["get"]["responses"]["200"]["schema"] =
     await sdk.getEventsCollectionsFlooraskV1({
@@ -27,7 +31,8 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
   if (
     !floorAsk?.event?.id ||
     !floorAsk.floorAsk?.tokenId ||
-    !floorAsk.floorAsk?.price
+    !floorAsk.floorAsk?.price ||
+    !floorAsk?.event?.createdAt
   ) {
     logger.error("Could not pull floor ask");
     throw new Error("Could not pull floor ask");
@@ -120,16 +125,18 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
         iconURL: `${floorToken.token.collection.image}`,
       })
       .setDescription(
-        `${floorToken.token.name} was just listed for ${
+        `${floorToken.token.name} is now the floor token, listed for ${
           floorAsk.floorAsk.price
         }Ξ by [${floorToken.token.owner.substring(
           0,
           6
-        )}](https://www.reservoir.market/address/${floorToken.token.owner})
-        Last Sale: ${floorToken.token.lastSell.value}Ξ
-        Rarity Rank: ${floorToken.token.rarityRank}
-        
-        `
+        )}](https://www.reservoir.market/address/${
+          floorToken.token.owner
+        }) ${relativeTime.from(
+          new Date(floorAsk.event.createdAt)
+        )}\nLast Sale: ${floorToken.token.lastSell.value}Ξ\nRarity Rank: ${
+          floorToken.token.rarityRank
+        }`
       )
       .addFields(attributes)
       .setThumbnail(`${floorToken.token.image}`)
