@@ -79,7 +79,8 @@ export async function replySelectInteraction(
   });
 
   // Log success
-  logger.info(
+  /* logger.info(
     `Updated embed for select interaction ${JSON.stringify(interaction)}`
-  );
+  ); */
+  logger.info(`Updated embed for select interaction`);
 }
