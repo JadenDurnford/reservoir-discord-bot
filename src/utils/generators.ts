@@ -71,9 +71,12 @@ export function selectMenuGen(
     .addOptions(selectOptions);
 
   // Creating bid select menu
-  const bidSelectMenu = statSelectMenu
+  const bidSelectMenu = new SelectMenuBuilder()
     .setCustomId("bidselect")
-    .setPlaceholder("Select collection to view top bid");
+    .setPlaceholder("Select collection to view top bid")
+    .setMinValues(1)
+    .setMaxValues(1)
+    .addOptions(selectOptions);
 
   // Creating stat select action row
   const statSelectRow = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
