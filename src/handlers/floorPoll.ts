@@ -26,7 +26,6 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
   // Log failure + throw if floor event couldn't be pulled
   if (
     !floorAsk?.event?.id ||
-    !floorAsk.collection?.id ||
     !floorAsk.floorAsk?.tokenId ||
     !floorAsk.floorAsk?.price
   ) {
@@ -37,21 +36,53 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
   // Pull cached floor ask event id from Redis
   const cachedId: string | null = await redis.get("flooreventid");
 
-  // If most recent event doesn't match cached event generate alert
-  if (Number(floorAsk.event.id) !== Number(cachedId)) {
-    // setting updated floor ask event id
-    const success: "OK" = await redis.set("flooreventid", floorAsk.event.id);
+  // Pull cooldown for floor ask alert from Redis
+  let eventCooldown: string | null = await redis.get("floorcooldown");
 
-    // Log failure + throw if event id couldn't be set
-    if (success !== "OK") {
-      logger.error("Could not set new floorprice eventid");
-      throw new Error("Could not set new floorprice eventid");
+  // Pull cached floor ask price from Redis
+  const cachedPrice: string | null = await redis.get("floorprice");
+
+  // On 10% change in floor ask override alert cooldown
+  if (
+    Number(cachedPrice) / Number(floorAsk.floorAsk.price) > 1.1 ||
+    Number(cachedPrice) / Number(floorAsk.floorAsk.price) < 0.9
+  ) {
+    eventCooldown = null;
+  }
+
+  // If most recent event doesn't match cached event and process not on cooldown generate alert
+  if (Number(floorAsk.event.id) !== Number(cachedId) && !eventCooldown) {
+    // setting updated floor ask event id
+    const idSuccess: "OK" = await redis.set("flooreventid", floorAsk.event.id);
+    // setting updated floor ask cooldown
+    const cooldownSuccess: "OK" = await redis.set(
+      "floorcooldown",
+      "true",
+      "EX",
+      60
+    );
+    // setting updated floor ask price
+    const priceSuccess: "OK" = await redis.set(
+      "floorprice",
+      floorAsk.floorAsk.price,
+      "EX",
+      60
+    );
+
+    // Log failure + throw if floor ask info couldn't be set
+    if (
+      idSuccess !== "OK" ||
+      cooldownSuccess !== "OK" ||
+      priceSuccess !== "OK"
+    ) {
+      logger.error("Could not set new floorprice info");
+      throw new Error("Could not set new floorprice info");
     }
 
     // Getting floor ask token
     const tokenResponse: paths["/tokens/v5"]["get"]["responses"]["200"]["schema"] =
       await sdk.getTokensV5({
-        tokens: [`${floorAsk.collection.id}:${floorAsk.floorAsk.tokenId}`],
+        tokens: [`${contractAddress}:${floorAsk.floorAsk.tokenId}`],
         sortBy: "floorAskPrice",
         limit: 1,
         includeTopBid: false,
@@ -73,7 +104,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
       throw new Error("Could not pull floor token");
     }
 
-    // create attributes array if they exist
+    // create attributes array for discord fields if they attributes exist
     let attributes: { name: string; value: string; inline: boolean }[] =
       floorToken.token.attributes?.map((attr) => {
         return { name: attr.key ?? "", value: attr.value ?? "", inline: true };
@@ -110,7 +141,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
         .setLabel("Purchase")
         .setStyle(5)
         .setURL(
-          `https://www.reservoir.market/${floorAsk.collection.id}/${floorAsk.floorAsk.tokenId}`
+          `https://www.reservoir.market/${contractAddress}/${floorAsk.floorAsk.tokenId}`
         )
     );
 

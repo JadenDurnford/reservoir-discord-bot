@@ -10,14 +10,16 @@ export default async function replyChatInteraction(
   const { value: name } = interaction.options.get("name", true);
   const limit = interaction.options.get("limit", false)?.value;
 
-  // Throw error if no collection name was received
+  // Log failure + throw if no collection name was received
   if (typeof name !== "string") {
     logger.error(`No collection name received for ${interaction}`);
     throw new Error("No collection name received");
   }
 
+  // Getting collection data from Reservoir
   const searchData = await getCollection(name, undefined, limit, undefined);
 
+  // Log failure + throw if collection data not collected
   if (!searchData) {
     logger.error(
       `Could not collect collections for ${JSON.stringify(interaction)}`
@@ -25,8 +27,10 @@ export default async function replyChatInteraction(
     throw new Error("Could not collect collections");
   }
 
+  // Creating array of options for select menu if they exist
   let selectOptions: { label: string; value: string }[] = searchData.map(
     (collection) => {
+      // Log failure + throw if name or contract address don't exist for an option
       if (!collection.name || !collection.id) {
         logger.error(
           `Could not collect collection details for ${JSON.stringify(
@@ -39,6 +43,7 @@ export default async function replyChatInteraction(
     }
   );
 
+  // Creating discord description of collections returned
   const fieldValue = selectOptions
     .map(
       (collection, i) =>
@@ -48,13 +53,16 @@ export default async function replyChatInteraction(
     )
     .join("\n");
 
+  // Creating new embed for data collected
   const chatCommandEmbed = baseEmbedGen(name, searchData, fieldValue);
 
+  // Replying to chat command with embed and selection menus
   await interaction.reply({
     embeds: [chatCommandEmbed],
     components: selectOptions.length !== 0 ? selectMenuGen(selectOptions) : [],
   });
 
+  // Log success
   logger.info(
     `Successfully called collection command: name=${name}, limit=${
       limit ?? "not provided"

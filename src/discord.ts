@@ -1,10 +1,4 @@
-import {
-  Client,
-  GatewayIntentBits,
-  ChannelType,
-  Events,
-  TextChannel,
-} from "discord.js";
+import { Client, GatewayIntentBits, ChannelType, Events } from "discord.js";
 import logger from "./utils/logger";
 import { floorPoll } from "./handlers/floorPoll";
 import { bidPoll } from "./handlers/bidPoll";
