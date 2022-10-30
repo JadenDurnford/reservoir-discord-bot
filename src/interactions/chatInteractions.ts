@@ -56,11 +56,23 @@ export default async function replyChatInteraction(
   // Creating new embed for data collected
   const chatCommandEmbed = baseEmbedGen(name, searchData, fieldValue);
 
+  const selectMenu = selectMenuGen(selectOptions);
+
   // Replying to chat command with embed and selection menus
-  await interaction.reply({
-    embeds: [chatCommandEmbed],
-    components: selectOptions.length !== 0 ? selectMenuGen(selectOptions) : [],
-  });
+  try {
+    await interaction.reply({
+      embeds: [chatCommandEmbed],
+      components: selectOptions.length !== 0 ? selectMenu : [],
+    });
+  } catch (e) {
+    if (e instanceof Error) {
+      logger.error(e);
+      throw new Error(e.message);
+    } else {
+      logger.error(e);
+      throw new Error("Unexpected error in chat interaction");
+    }
+  }
 
   // Log success
   logger.info(
