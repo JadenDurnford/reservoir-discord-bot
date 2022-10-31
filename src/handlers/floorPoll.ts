@@ -64,10 +64,12 @@ export async function floorPoll(
   // Pull cached floor ask price from Redis
   const cachedPrice: string | null = await redis.get("floorprice");
 
-  // On 10% change in floor ask override alert cooldown
+  // On X% change in floor ask override alert cooldown
   if (
-    Number(cachedPrice) / Number(floorAsk.floorAsk.price) > 1.1 ||
-    Number(cachedPrice) / Number(floorAsk.floorAsk.price) < 0.9
+    Number(cachedPrice) / Number(floorAsk.floorAsk.price) >
+      1 + constants.PRICE_CHANGE_OVERRIDE ||
+    Number(cachedPrice) / Number(floorAsk.floorAsk.price) <
+      1 - constants.PRICE_CHANGE_OVERRIDE
   ) {
     eventCooldown = null;
   }
