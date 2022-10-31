@@ -1,8 +1,13 @@
 import axios from "axios";
 import { AttachmentBuilder } from "discord.js";
 import sharp from "sharp";
-import logger from "./logger";
 
+/**
+ *
+ * @param {string} imageURL URL of webp image to convert
+ * @param {string} name Name of collection
+ * @returns {AttachmentBuilder} attachment
+ */
 export default async function handleMediaConversion(
   imageURL: string,
   name: string
@@ -11,16 +16,17 @@ export default async function handleMediaConversion(
   const { data } = await axios.get(imageURL, { responseType: "arraybuffer" });
 
   // Convert to buffer
-  const buf = Buffer.from(data, "binary");
-  const webp = sharp(buf, { animated: true });
-  const metadata = await webp.metadata();
-  const format = metadata.pages && metadata.pages > 1 ? "gif" : "png";
-  const image = await webp.toFormat(format).toBuffer();
+  const buffer = Buffer.from(data, "binary");
 
-  // Create attachment from gif buffer
+  // Convert first frame to png buffer
+  const image = await sharp(buffer).toFormat("png").toBuffer();
+
+  // Create attachment from png buffer
   let attachment = new AttachmentBuilder(image);
+
+  // Set fileName to collection name
   const fileName = name.replace(/\s+/g, "");
-  attachment.name = `${fileName}.${format}`;
+  attachment.name = `${fileName}.${"png"}`;
 
   return attachment;
 }

@@ -1,8 +1,9 @@
-import { CacheType, SelectMenuInteraction } from "discord.js";
+import { CacheType, EmbedBuilder, SelectMenuInteraction } from "discord.js";
 import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { selectionEmbedGen } from "../utils/generators";
 import { SelectMenuType } from "../utils/types";
+import constants from "../utils/constants";
 
 /**
  * Handle to discord select menu interaction
@@ -11,6 +12,38 @@ import { SelectMenuType } from "../utils/types";
 export async function replySelectInteraction(
   interaction: SelectMenuInteraction<CacheType>
 ) {
+  // Defer update to give time for image processing
+  await interaction.deferUpdate();
+
+  // Building loading embed to display while loading user selection
+  let loadingEmbed = new EmbedBuilder()
+    .setColor(0x8b43e0)
+    .setTitle("Loading...")
+    .setAuthor({
+      name: "Reservoir Bot",
+      url: "https://reservoir.tools/",
+      iconURL: constants.RESERVOIR_ICON,
+    })
+    .setThumbnail(constants.RESERVOIR_ICON)
+    .setTimestamp();
+
+  switch (interaction.customId) {
+    case SelectMenuType.statMenu: {
+      loadingEmbed.setDescription("Loading collection stats...");
+      break;
+    }
+    case SelectMenuType.bidMenu: {
+      loadingEmbed.setDescription("Loading collection top bid...");
+      break;
+    }
+  }
+
+  // Displaying loading embed while loading user selection
+  await interaction.editReply({
+    embeds: [loadingEmbed],
+    files: [],
+  });
+
   // Set the collection id
   const id = interaction.values[0];
 
@@ -73,7 +106,7 @@ export async function replySelectInteraction(
     default: {
       // Log failure + throw if select menu interaction is not recognized
       logger.error("Unknown select menu interaction");
-      await interaction.update({
+      await interaction.editReply({
         content: "Error: Unknown Selection",
       });
       return;
@@ -81,17 +114,11 @@ export async function replySelectInteraction(
   }
 
   // Update embed to display selected information
-  if (attachment) {
-    await interaction.update({
-      embeds: [selectionEmbed],
-      files: [attachment],
-    });
-  } else {
-    await interaction.update({
-      embeds: [selectionEmbed],
-      files: [],
-    });
-  }
+  await interaction.editReply({
+    content: "",
+    embeds: [selectionEmbed],
+    files: attachment ? [attachment] : [],
+  });
 
   // Log success
   logger.info(`Updated embed for select interaction ${id}`);

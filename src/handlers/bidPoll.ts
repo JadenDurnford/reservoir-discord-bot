@@ -1,5 +1,10 @@
 import Redis from "ioredis";
-import { TextChannel, EmbedBuilder } from "discord.js";
+import {
+  TextChannel,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+} from "discord.js";
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 import constants from "../utils/constants";
@@ -109,8 +114,17 @@ export async function bidPoll(
       .setThumbnail(bidCollection.image ?? constants.RESERVOIR_ICON)
       .setTimestamp();
 
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setLabel("Accept offer")
+        .setStyle(5)
+        .setURL(
+          `https://www.reservoir.market/collections/${topBid.topBid.contract}`
+        )
+    );
+
     // Sending top bid token Discord alert
-    channel.send({ embeds: [bidEmbed] });
+    channel.send({ embeds: [bidEmbed], components: [row] });
     logger.info(
       `Successfully alerted new top bid by ${JSON.stringify(
         topBid.topBid.maker

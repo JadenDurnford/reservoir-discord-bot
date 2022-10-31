@@ -64,7 +64,7 @@ export async function selectionEmbedGen(
     throw new Error("searchData is undefined");
   }
 
-  // Handle image
+  // If image is webp, convert to png
   const { headers } = await axios.get(
     searchData.image ?? constants.RESERVOIR_ICON
   );
