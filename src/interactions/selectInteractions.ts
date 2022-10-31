@@ -89,6 +89,7 @@ export async function replySelectInteraction(
   } else {
     await interaction.update({
       embeds: [selectionEmbed],
+      files: [],
     });
   }
 

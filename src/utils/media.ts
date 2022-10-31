@@ -20,7 +20,6 @@ export default async function handleMediaConversion(
   // Create attachment from gif buffer
   let attachment = new AttachmentBuilder(image);
   const fileName = name.replace(/\s+/g, "");
-  logger.info(fileName);
   attachment.name = `${fileName}.${format}`;
 
   return attachment;
