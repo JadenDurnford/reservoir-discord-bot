@@ -35,7 +35,9 @@ export async function replySelectInteraction(
   }
 
   // Creating new embed for selection
-  const selectionEmbed = selectionEmbedGen(searchDataResponse);
+  const { selectionEmbed, attachment } = await selectionEmbedGen(
+    searchDataResponse
+  );
 
   // Adding embed details depending on select menu used
   switch (interaction.customId) {
@@ -81,6 +83,7 @@ export async function replySelectInteraction(
   // Update embed to display selected information
   await interaction.update({
     embeds: [selectionEmbed],
+    files: attachment ? [attachment] : [],
   });
 
   // Log success

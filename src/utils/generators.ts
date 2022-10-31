@@ -1,8 +1,15 @@
-import { EmbedBuilder, SelectMenuBuilder, ActionRowBuilder } from "discord.js";
+import {
+  EmbedBuilder,
+  SelectMenuBuilder,
+  ActionRowBuilder,
+  AttachmentBuilder,
+} from "discord.js";
 import constants from "./constants";
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "./logger";
 import { SelectMenuType } from "./types";
+import handleMediaConversion from "./media";
+import axios from "axios";
 
 /**
  * Basic discord embed template generator
@@ -45,7 +52,7 @@ export function baseEmbedGen(
  * @param {paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]} searchDataResponse Collection info
  * @returns embed for discord selection interactions
  */
-export function selectionEmbedGen(
+export async function selectionEmbedGen(
   searchDataResponse: paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]
 ) {
   // Getting first collection from response
@@ -57,16 +64,37 @@ export function selectionEmbedGen(
     throw new Error("searchData is undefined");
   }
 
+  // Handle image
+  const { headers } = await axios.get(
+    searchData.image ?? constants.RESERVOIR_ICON
+  );
+  let attachment: AttachmentBuilder | undefined = undefined;
+  if (headers["content-type"] === "image/webp") {
+    attachment = await handleMediaConversion(
+      searchData.image ?? constants.RESERVOIR_ICON,
+      searchData.name
+    );
+  }
+
   // Return selection embed template
-  return new EmbedBuilder()
-    .setColor(0x8b43e0)
-    .setAuthor({
-      name: searchData.name,
-      url: `https://reservoir.tools/${searchData.id}`,
-      iconURL: searchData.image ?? constants.RESERVOIR_ICON,
-    })
-    .setThumbnail(searchData.image ?? constants.RESERVOIR_ICON)
-    .setTimestamp();
+  return {
+    selectionEmbed: new EmbedBuilder()
+      .setColor(0x8b43e0)
+      .setAuthor({
+        name: searchData.name,
+        url: `https://reservoir.tools/${searchData.id}`,
+        iconURL: attachment
+          ? `attachment://${attachment.name}`
+          : searchData.image ?? constants.RESERVOIR_ICON,
+      })
+      .setThumbnail(
+        attachment
+          ? `attachment://${attachment.name}`
+          : searchData.image ?? constants.RESERVOIR_ICON
+      )
+      .setTimestamp(),
+    attachment: attachment,
+  };
 }
 
 /**
