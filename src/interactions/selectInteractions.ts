@@ -81,10 +81,16 @@ export async function replySelectInteraction(
   }
 
   // Update embed to display selected information
-  await interaction.update({
-    embeds: [selectionEmbed],
-    files: attachment ? [attachment] : [],
-  });
+  if (attachment) {
+    await interaction.update({
+      embeds: [selectionEmbed],
+      files: [attachment],
+    });
+  } else {
+    await interaction.update({
+      embeds: [selectionEmbed],
+    });
+  }
 
   // Log success
   logger.info(`Updated embed for select interaction ${id}`);
