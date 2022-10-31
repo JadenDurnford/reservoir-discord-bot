@@ -11,13 +11,19 @@ import Discord from "./discord";
     const TRACKED_CONTRACT: string | undefined = process.env.TRACKED_CONTRACT;
     const CHANNEL_ID: string | undefined = process.env.CHANNEL_ID;
     const TOKEN: string | undefined = process.env.TOKEN;
-    if (!TRACKED_CONTRACT || !CHANNEL_ID || !TOKEN) {
+    const RESERVOIR_API_KEY: string | undefined = process.env.RESERVOIR_API_KEY;
+    if (!TRACKED_CONTRACT || !CHANNEL_ID || !TOKEN || !RESERVOIR_API_KEY) {
       logger.error("Missing env vars");
       throw new Error("Missing env vars");
     }
 
     // Setup Discord
-    const discord = new Discord(TRACKED_CONTRACT, CHANNEL_ID, TOKEN);
+    const discord = new Discord(
+      TRACKED_CONTRACT,
+      CHANNEL_ID,
+      TOKEN,
+      RESERVOIR_API_KEY
+    );
 
     // Listen for Discord events
     await discord.handleEvents();

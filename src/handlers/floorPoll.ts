@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
+import constants from "../utils/constants";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 /**
@@ -14,9 +15,16 @@ const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
  * @param {TextChannel} channel channel to send floor price alert to
  * @param {string} contractAddress collection to check for top bid events
  */
-export async function floorPoll(channel: TextChannel, contractAddress: string) {
+export async function floorPoll(
+  channel: TextChannel,
+  contractAddress: string,
+  apiKey: string
+) {
   // Setting up Redis
   const redis = new Redis();
+
+  // Authorizing with Reservoir API Key
+  await sdk.auth(apiKey);
 
   // Getting floor ask events from Reservoir
   const floorAskResponse: paths["/events/collections/floor-ask/v1"]["get"]["responses"]["200"]["schema"] =
@@ -73,7 +81,7 @@ export async function floorPoll(channel: TextChannel, contractAddress: string) {
       "floorcooldown",
       "true",
       "EX",
-      60
+      constants.ALERT_COOLDOWN
     );
     // setting updated floor ask price
     const priceSuccess: "OK" = await redis.set(

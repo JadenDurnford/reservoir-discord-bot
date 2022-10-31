@@ -11,9 +11,16 @@ const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
  * @param {TextChannel} channel channel to send top bid alert to
  * @param {string} contractAddress collection to check for top bid events
  */
-export async function bidPoll(channel: TextChannel, contractAddress: string) {
+export async function bidPoll(
+  channel: TextChannel,
+  contractAddress: string,
+  apiKey: string
+) {
   // Setting up Redis
   const redis = new Redis();
+
+  // Authorizing with Reservoir API Key
+  await sdk.auth(apiKey);
 
   // Getting top bid events from Reservoir
   const topBidResponse: paths["/events/collections/top-bid/v1"]["get"]["responses"]["200"]["schema"] =
@@ -56,7 +63,7 @@ export async function bidPoll(channel: TextChannel, contractAddress: string) {
       "bidcooldown",
       "true",
       "EX",
-      60
+      constants.ALERT_COOLDOWN
     );
 
     // Log failure + throw if top bid info couldn't be set

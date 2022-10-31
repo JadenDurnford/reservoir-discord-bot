@@ -12,6 +12,8 @@ export default class Discord {
   private channelId: string;
   // Discord Bot Token
   private token: string;
+  // Reservoir API Key
+  private apiKey: string;
   // Setting Discord bot permissions
   client = new Client({
     intents: [
@@ -27,10 +29,16 @@ export default class Discord {
    * @param channelId Discord channel to send alerts
    * @param token Discord Bot Token
    */
-  constructor(contractAddress: string, channelId: string, token: string) {
+  constructor(
+    contractAddress: string,
+    channelId: string,
+    token: string,
+    apiKey: string
+  ) {
     this.contractAddress = contractAddress;
     this.channelId = channelId;
     this.token = token;
+    this.apiKey = apiKey;
   }
 
   /**
@@ -53,8 +61,8 @@ export default class Discord {
     }
 
     // Get new floor price and top bid data
-    await floorPoll(channel, this.contractAddress);
-    await bidPoll(channel, this.contractAddress);
+    await floorPoll(channel, this.contractAddress, this.apiKey);
+    await bidPoll(channel, this.contractAddress, this.apiKey);
 
     // Collecting new data in 5s
     setTimeout(() => this.poll(), 5000);
