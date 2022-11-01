@@ -69,9 +69,10 @@ export default class Discord {
     const redis = new Redis(6379, "redis");
 
     // Get new floor price and top bid data
-    await floorPoll(channel, this.contractAddress, this.apiKey, redis);
-    await bidPoll(channel, this.contractAddress, this.apiKey, redis);
-
+    Promise.allSettled([
+      floorPoll(channel, this.contractAddress, this.apiKey, redis),
+      bidPoll(channel, this.contractAddress, this.apiKey, redis),
+    ]);
     // Collecting new data in 5s
     setTimeout(() => this.poll(), 5000);
   }

@@ -46,7 +46,7 @@ export async function bidPoll(
   // Pull cached top bid event id from Redis
   const cachedId: string | null = await redis.get("bideventid");
 
-  // If most recent event matchs cached event exit function
+  // If most recent event matches cached event exit function
   if (Number(topBid.event.id) === Number(cachedId)) {
     return;
   }

@@ -11,6 +11,7 @@ export default async function commandBuilder(
   TOKEN: string
 ): Promise<void> {
   try {
+    // Collection command details
     let slash_commands = [
       {
         name: "collection",
@@ -31,18 +32,23 @@ export default async function commandBuilder(
       },
     ];
 
+    // Discord command setup api endpoint
     const url = `https://discord.com/api/v10/applications/${APPLICATION_ID}/commands`;
 
+    // Discord api headers
     const headers = {
       "Content-Type": "application/json",
       "Authorization": `Bot ${TOKEN}`,
     };
 
+    // Add commands to Discord bot
     const registerCommands = await axios.put(
       url,
       JSON.stringify(slash_commands),
       { headers: headers }
     );
+
+    // Return success if commands are registered, else throw
     if (registerCommands.status === 200 || registerCommands.status === 201) {
       logger.info(
         `Successfully registered commands: ${JSON.stringify(

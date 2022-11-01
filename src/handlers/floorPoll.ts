@@ -124,7 +124,7 @@ export async function floorPoll(
       throw new Error("Could not pull floor token");
     }
 
-    // create attributes array for discord fields if they attributes exist
+    // create attributes array for discord fields if the attributes exist
     const attributes: { name: string; value: string; inline: boolean }[] =
       floorToken.token.attributes?.map((attr) => {
         return { name: attr.key ?? "", value: attr.value ?? "", inline: true };
