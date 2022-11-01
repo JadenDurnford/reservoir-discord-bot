@@ -12,9 +12,8 @@ The Discord bot ships with the following functionality:
 ## Getting Started
 ### Prerequisites
 1. Install [Node.js and NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-2. Install [Redis](https://redis.io/docs/getting-started/installation/)
-3. Request a free [Reservoir API Key](https://docs.reservoir.tools/reference/overview#/0.%20Auth/postApikeys)
-4. [Setup a Discord application and bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html#setting-up-a-bot-application)
+2. Request a free [Reservoir API Key](https://docs.reservoir.tools/reference/overview#/0.%20Auth/postApikeys)
+3. [Setup a Discord application and bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html#setting-up-a-bot-application)
 
 ### Built With
 - [ReservoirKit Client](https://docs.reservoir.tools/docs/reservoirkit-client)
@@ -23,10 +22,36 @@ The Discord bot ships with the following functionality:
 - [Discord.js](https://discord.js.org/#/)
 
 ### Installation
-Fork this repo and follow these instructions to install dependencies.
+#### Method 1: Docker Setup (Recommended)
+1. Install [Docker](https://docs.docker.com/compose/install/)
+2. Fork this repository, and follow these instructions to get your Discord bot running
+```bash
+# Copy env vars sample file
+cp .env.sample .env
 
+# Set env vars in editor of your choice
+vim .env
+
+# Create and start the docker container
+docker compose up -d
 ```
-$ npm install
+
+#### Method 2: Manual Setup
+1. Install [Redis](https://redis.io/docs/getting-started/installation/) 
+2. Fork this repository, and follow these instructions to get your Discord bot running
+
+```bash
+# Copy env vars sample file
+cp .env.sample .env
+
+# Set env vars in editor of your choice
+vim .env
+
+# Download dependencies
+npm install
+
+# Start the Discord bot
+npm run start
 ```
 
 ### Configuration
@@ -44,13 +69,6 @@ Optional Variables
 |----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | ALERT_COOLDOWN              | `false`  | Number of seconds to wait before sending a new floor price or top bid alert                                   | 60s |
 | PRICE_CHANGE_OVERRIDE      | `false`   | Percentage change in floor price to override alert cooldown         | 0.1 (10%) |
-
-### Run the App
-Once you have your setup ready, run:
-```
-$ npm run start
-```
-
 ## Contact
 
 Twitter: [@reservoir0x](https://twitter.com/reservoir0x)
