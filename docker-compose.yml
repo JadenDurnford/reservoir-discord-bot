@@ -10,8 +10,8 @@ services:
   bot:
     container_name: reservoir-discord-bot
     build: .
-    command: node ./dist/index.js
     depends_on:
       - redis
+    command: ["node", "./dist/index.js"]
     env_file:
       - .env

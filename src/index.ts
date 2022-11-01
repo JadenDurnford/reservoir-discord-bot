@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import logger from "./utils/logger";
 import Discord from "./discord";
+import Redis from "ioredis";
 
 (async () => {
   try {
@@ -25,8 +26,11 @@ import Discord from "./discord";
       RESERVOIR_API_KEY
     );
 
-    // Listen for Discord events
-    await discord.handleEvents();
+    const redis = new Redis();
+    redis.on("ready", async () => {
+      // Listen for Discord events
+      await discord.handleEvents();
+    });
   } catch (e) {
     if (e instanceof Error) {
       logger.error(e);
