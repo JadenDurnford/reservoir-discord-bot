@@ -4,6 +4,8 @@ import { floorPoll } from "./handlers/floorPoll";
 import { bidPoll } from "./handlers/bidPoll";
 import replyChatInteraction from "./interactions/chatInteractions";
 import { replySelectInteraction } from "./interactions/selectInteractions";
+import commandBuilder from "./utils/commands";
+import Redis from "ioredis";
 
 export default class Discord {
   // Tracked Collection
@@ -14,6 +16,8 @@ export default class Discord {
   private token: string;
   // Reservoir API Key
   private apiKey: string;
+  // Discord Bot Application ID
+  private applicationId: string;
   // Setting Discord bot permissions
   client = new Client({
     intents: [
@@ -33,12 +37,14 @@ export default class Discord {
     contractAddress: string,
     channelId: string,
     token: string,
-    apiKey: string
+    apiKey: string,
+    applicationId: string
   ) {
     this.contractAddress = contractAddress;
     this.channelId = channelId;
     this.token = token;
     this.apiKey = apiKey;
+    this.applicationId = applicationId;
   }
 
   /**
@@ -59,10 +65,12 @@ export default class Discord {
       logger.error("Channel is not a text channel");
       throw new Error("Channel is not a text channel");
     }
+    // Setting up Redis
+    const redis = new Redis(6379, "redis");
 
     // Get new floor price and top bid data
-    await floorPoll(channel, this.contractAddress, this.apiKey);
-    await bidPoll(channel, this.contractAddress, this.apiKey);
+    await floorPoll(channel, this.contractAddress, this.apiKey, redis);
+    await bidPoll(channel, this.contractAddress, this.apiKey, redis);
 
     // Collecting new data in 5s
     setTimeout(() => this.poll(), 5000);
@@ -72,8 +80,8 @@ export default class Discord {
    * Handling Discord bot events
    */
   async handleEvents(): Promise<void> {
-    // Login to Discord
-    await this.client.login(this.token);
+    // Make sure commands are registered
+    await commandBuilder(this.applicationId, this.token);
 
     // Handle ready
     this.client.on(Events.ClientReady, async () => {
@@ -97,5 +105,8 @@ export default class Discord {
         logger.error(`Unknown interaction passed: ${interaction}`);
       }
     });
+
+    // Login to Discord
+    await this.client.login(this.token);
   }
 }

@@ -19,11 +19,9 @@ const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 export async function bidPoll(
   channel: TextChannel,
   contractAddress: string,
-  apiKey: string
+  apiKey: string,
+  redis: Redis
 ) {
-  // Setting up Redis
-  const redis = new Redis();
-
   // Authorizing with Reservoir API Key
   await sdk.auth(apiKey);
 

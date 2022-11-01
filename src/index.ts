@@ -13,7 +13,14 @@ import waitPort from "wait-port";
     const CHANNEL_ID: string | undefined = process.env.CHANNEL_ID;
     const TOKEN: string | undefined = process.env.TOKEN;
     const RESERVOIR_API_KEY: string | undefined = process.env.RESERVOIR_API_KEY;
-    if (!TRACKED_CONTRACT || !CHANNEL_ID || !TOKEN || !RESERVOIR_API_KEY) {
+    const APPLICATION_ID: string | undefined = process.env.APPLICATION_ID;
+    if (
+      !TRACKED_CONTRACT ||
+      !CHANNEL_ID ||
+      !TOKEN ||
+      !RESERVOIR_API_KEY ||
+      !APPLICATION_ID
+    ) {
       logger.error("Missing env vars");
       throw new Error("Missing env vars");
     }
@@ -23,7 +30,8 @@ import waitPort from "wait-port";
       TRACKED_CONTRACT,
       CHANNEL_ID,
       TOKEN,
-      RESERVOIR_API_KEY
+      RESERVOIR_API_KEY,
+      APPLICATION_ID
     );
 
     const params = {
