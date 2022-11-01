@@ -10,7 +10,7 @@ Discord server, which can be expanded and customized to their liking.
 The Discord bot ships with the following functionality:
 
 - Automated alerts for new floor listings and top collection bids
-- Collection search to view stats and the current top bid
+- Collection search to view stats, current top bid, and current floor price
 
 ## Getting Started
 
