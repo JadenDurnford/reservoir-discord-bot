@@ -79,7 +79,8 @@ export async function replySelectInteraction(
     !searchData ||
     !searchData.name ||
     !searchData.rank ||
-    !searchData.volume
+    !searchData.volume ||
+    !searchData.createdAt
   ) {
     logger.error(`Could not collect data for ${JSON.stringify(interaction)}`);
     throw new Error("Could not collect data for selection interaction");
@@ -96,11 +97,10 @@ export async function replySelectInteraction(
   switch (interaction.customId) {
     case SelectMenuType.statMenu: {
       let stats: { name: string; value: string; inline: boolean }[] = [];
-      let generalDesc = `On Sale Count: ${
-        searchData.onSaleCount
-      }\nToken Count: ${searchData.tokenCount}\nCreated At: ${
-        searchData.createdAt ? Date.parse(searchData.createdAt) : "N/A"
-      }`;
+      const createdAt = new Date(
+        Date.parse(searchData.createdAt) * 1000
+      ).toDateString();
+      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated At: ${createdAt}`;
       let rankDesc = "";
       let volumeDesc = "";
 
