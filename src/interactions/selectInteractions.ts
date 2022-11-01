@@ -98,7 +98,7 @@ export async function replySelectInteraction(
     case SelectMenuType.statMenu: {
       let stats: { name: string; value: string; inline: boolean }[] = [];
       const createdAt = new Date(
-        Date.parse(searchData.createdAt) * 1000
+        Date.parse(searchData.createdAt)
       ).toDateString();
       let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated: ${createdAt}`;
       let rankDesc = "";
