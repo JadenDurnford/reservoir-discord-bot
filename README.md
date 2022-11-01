@@ -10,16 +10,18 @@ Discord server, which can be expanded and customized to their liking.
 The Discord bot ships with the following functionality:
 
 - Automated alerts for new floor listings and top collection bids
-  ![alert example](https://i.imgur.com/OpYAk1A.png)
+
+![alert example](https://i.imgur.com/OpYAk1A.png | width=200)
+
 - Collection search to view stats, current top bid, and current floor price
 
 ```
 /collection [name: collection name to search for (ex. forgotten runes)] [limit: number of collections to return]
 ```
 
-![collection example](https://i.imgur.com/HUREMOC.png)
-![top bid example](https://i.imgur.com/YQ8LmA2.png)
-![floor price example](https://i.imgur.com/NTxwvqJ.png)
+![collection example](https://i.imgur.com/HUREMOC.png | width=200)
+![top bid example](https://i.imgur.com/YQ8LmA2.png | width=200)
+![floor price example](https://i.imgur.com/NTxwvqJ.png | width=200)
 
 ## Getting Started
 
