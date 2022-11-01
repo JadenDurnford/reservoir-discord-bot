@@ -78,7 +78,7 @@ Environment Variables
 Optional Variables
 | Constant | Description | Default |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60s |
+| ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60 \* 30 (30 minutes) |
 | PRICE_CHANGE_OVERRIDE | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
 
 ## Contact

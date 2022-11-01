@@ -113,7 +113,11 @@ export function selectMenuGen(
     },
     {
       id: SelectMenuType.bidMenu,
-      placeholder: "Select collection to top bid",
+      placeholder: "Select collection to view top bid",
+    },
+    {
+      id: SelectMenuType.floorMenu,
+      placeholder: "Select collection to view floor price",
     },
   ].map(({ id, placeholder }) =>
     // Create menu from component details

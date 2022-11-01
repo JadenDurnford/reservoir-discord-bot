@@ -1,4 +1,10 @@
-import { CacheType, EmbedBuilder, SelectMenuInteraction } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  CacheType,
+  EmbedBuilder,
+  SelectMenuInteraction,
+} from "discord.js";
 import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { selectionEmbedGen } from "../utils/generators";
@@ -36,6 +42,13 @@ export async function replySelectInteraction(
       loadingEmbed.setDescription("Loading collection top bid...");
       break;
     }
+    case SelectMenuType.floorMenu: {
+      loadingEmbed.setDescription("Loading collection floor price...");
+      break;
+    }
+    default: {
+      loadingEmbed.setDescription("Loading...");
+    }
   }
 
   // Displaying loading embed while loading user selection
@@ -72,6 +85,8 @@ export async function replySelectInteraction(
     searchDataResponse
   );
 
+  /*   let row: ActionRowBuilder<ButtonBuilder> | undefined = undefined; */
+
   // Adding embed details depending on select menu used
   switch (interaction.customId) {
     case SelectMenuType.statMenu: {
@@ -98,8 +113,51 @@ export async function replySelectInteraction(
             6
           )}](https://www.reservoir.market/address/${searchData.topBid.maker})`
         );
+
+        /* row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setLabel("Accept Offer")
+            .setStyle(5)
+            .setURL(`https://www.reservoir.market/collections/${searchData.id}`)
+        ); */
       } else {
         selectionEmbed.setDescription(`No bids found for ${searchData.name}`);
+      }
+      break;
+    }
+    case SelectMenuType.floorMenu: {
+      // Adding details for floor menu selected
+      selectionEmbed.setTitle(`${searchData.name} Floor Price`);
+
+      // Return top bid info if it exists, else return no bids message
+      if (
+        searchData.floorAsk?.price &&
+        searchData.floorAsk?.maker &&
+        searchData.floorAsk?.token
+      ) {
+        selectionEmbed.setDescription(
+          `${searchData.floorAsk.token?.name} is the floor token, listed for ${
+            searchData.floorAsk.price.netAmount?.native ??
+            searchData.floorAsk.price.amount?.native
+          }Ξ by [${searchData.floorAsk.maker.substring(
+            0,
+            6
+          )}](https://www.reservoir.market/address/${
+            searchData.floorAsk.maker
+          })`
+        );
+        /*         row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setLabel("Purchase")
+            .setStyle(5)
+            .setURL(
+              `https://www.reservoir.market/${searchData.id}/${searchData.floorAsk.token.tokenId}`
+            )
+        ); */
+      } else {
+        selectionEmbed.setDescription(
+          `No floor price found for ${searchData.name}`
+        );
       }
       break;
     }
