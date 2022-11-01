@@ -5,23 +5,27 @@
 ## About The Project
 
 Reservoir Discord Bot provides communities easy to use commands and alerts for their
-Discord server, which can be expanded and customized to their liking.
+Discord server, which can be expanded and customized to their liking. Come test the bot out now in the [Reservoir discord server](https://discord.com/invite/j5K9fESNwh)!
 
 The Discord bot ships with the following functionality:
 
 - Automated alerts for new floor listings and top collection bids
 
-<image src="https://i.imgur.com/OpYAk1A.png" width="200">
+<p align="center">
+<image src="https://i.imgur.com/OpYAk1A.png" width="500">
+</p>
 
 - Collection search to view stats, current top bid, and current floor price
 
 ```
 /collection [name: collection name to search for (ex. forgotten runes)] [limit: number of collections to return]
 ```
+<p align="center">
+<image src="https://i.imgur.com/HUREMOC.png" width="500">
 
-<image src="https://i.imgur.com/HUREMOC.png" width="200">
-<image src="https://i.imgur.com/YQ8LmA2.png" width="200">
-<image src="https://i.imgur.com/NTxwvqJ.png" width="200">
+<image src="https://i.imgur.com/YQ8LmA2.png" width="500">
+<image src="https://i.imgur.com/NTxwvqJ.png" width="500">
+</p>
 
 ## Getting Started
 
