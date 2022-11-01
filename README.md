@@ -20,9 +20,10 @@ The Discord bot ships with the following functionality:
 ```
 /collection [name: collection name to search for (ex. forgotten runes)] [limit: number of collections to return]
 ```
+
 <p align="center">
 <image src="https://i.imgur.com/HUREMOC.png" width="500">
-
+<image src="https://i.imgur.com/EXTp6tu.png" width="500">
 <image src="https://i.imgur.com/YQ8LmA2.png" width="500">
 <image src="https://i.imgur.com/NTxwvqJ.png" width="500">
 </p>
