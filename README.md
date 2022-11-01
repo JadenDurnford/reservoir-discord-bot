@@ -67,19 +67,19 @@ npm run start
 ### Configuration
 
 Environment Variables
-| Environment Variable | Required | Description | Example |
+| Environment Variable | Description | Example |
 |----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
-| TOKEN | | [Your Discord bot's token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-bot-s-token) | NzkyNzE1NDU0MTk2MDg4ODQy.X-hvzA.Ovy4MCQywSkoMRRclStW4xAYK7I |
-| APPLICATION_ID | `true` | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
-| CHANNEL_ID | `true` | [The Discord channel you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
-| TRACKED_CONTRACT | `true` | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
-| RESERVOIR_API_KEY | `true` | Reservoir API key provided by the Reservoir Protocol. [Get your own API key](https://api.reservoir.tools/#/0.%20Auth/postApikeys). | 123e4567-e89b-12d3-a456-426614174000 |
+| TOKEN | [Your Discord bot's token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-bot-s-token) | NzkyNzE1NDU0MTk2MDg4ODQy.X-hvzA.Ovy4MCQywSkoMRRclStW4xAYK7I |
+| APPLICATION_ID | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
+| CHANNEL_ID | [The Discord channel you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
+| TRACKED_CONTRACT | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
+| RESERVOIR_API_KEY | Reservoir API key provided by the Reservoir Protocol. [Get your own API key](https://api.reservoir.tools/#/0.%20Auth/postApikeys). | 123e4567-e89b-12d3-a456-426614174000 |
 
 Optional Variables
-| Constant | Required | Description | Default |
+| Constant | Description | Default |
 |----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| ALERT_COOLDOWN | `false` | Number of seconds to wait before sending a new floor price or top bid alert | 60s |
-| PRICE_CHANGE_OVERRIDE | `false` | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
+| ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60s |
+| PRICE_CHANGE_OVERRIDE | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
 
 ## Contact
 
