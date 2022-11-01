@@ -68,7 +68,7 @@ npm run start
 
 Environment Variables
 | Environment Variable | Description | Example |
-|----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 | TOKEN | [Your Discord bot's token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-bot-s-token) | NzkyNzE1NDU0MTk2MDg4ODQy.X-hvzA.Ovy4MCQywSkoMRRclStW4xAYK7I |
 | APPLICATION_ID | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
 | CHANNEL_ID | [The Discord channel you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
@@ -77,7 +77,7 @@ Environment Variables
 
 Optional Variables
 | Constant | Description | Default |
-|----------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60s |
 | PRICE_CHANGE_OVERRIDE | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
 
