@@ -6,6 +6,7 @@ import replyChatInteraction from "./interactions/chatInteractions";
 import { replySelectInteraction } from "./interactions/selectInteractions";
 import commandBuilder from "./utils/commands";
 import Redis from "ioredis";
+import constants from "./utils/constants";
 
 export default class Discord {
   // Tracked Collection
@@ -90,7 +91,9 @@ export default class Discord {
       logger.info(`Discord bot is connected as ${this.client.user?.tag}`);
 
       // Starting poll process
-      await this.poll();
+      if (constants.ALERT_ENABLED) {
+        await this.poll();
+      }
     });
 
     // Handle user interaction creation
