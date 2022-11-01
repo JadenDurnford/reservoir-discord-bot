@@ -37,7 +37,7 @@ docker compose up -d
 ```
 
 #### Method 2: Manual Setup
-1. Install [Redis](https://redis.io/docs/getting-started/installation/) 
+1. Install [Redis](https://redis.io/docs/getting-started/installation/) and start the server on the default port (6379)
 2. Fork this repository, and follow these instructions to get your Discord bot running
 
 ```bash
