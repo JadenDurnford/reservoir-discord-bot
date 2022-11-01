@@ -75,7 +75,12 @@ export async function replySelectInteraction(
   const searchData = searchDataResponse?.[0];
 
   // Log failure + throw if collection data not collected
-  if (!searchData || !searchData.name) {
+  if (
+    !searchData ||
+    !searchData.name ||
+    !searchData.rank ||
+    !searchData.volume
+  ) {
     logger.error(`Could not collect data for ${JSON.stringify(interaction)}`);
     throw new Error("Could not collect data for selection interaction");
   }
@@ -90,12 +95,40 @@ export async function replySelectInteraction(
   // Adding embed details depending on select menu used
   switch (interaction.customId) {
     case SelectMenuType.statMenu: {
+      let stats: { name: string; value: string; inline: boolean }[] = [];
+      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}`;
+      let rankDesc = "";
+      let volumeDesc = "";
+
+      if (!searchData.description) {
+        if (searchData.discordUrl) {
+          generalDesc += `\n[Discord](${searchData.discordUrl})`;
+        }
+        if (searchData.externalUrl) {
+          generalDesc += `\n[External Site](${searchData.externalUrl})`;
+        }
+        if (searchData.twitterUsername) {
+          generalDesc += `\n[Twitter](https://twitter.com/${searchData.twitterUsername})`;
+        }
+      }
+
+      for (const [key, value] of Object.entries(searchData.rank)) {
+        rankDesc += `${key}: ${value}\n`;
+      }
+
+      for (const [key, value] of Object.entries(searchData.volume)) {
+        volumeDesc += `${key}: ${value}\n`;
+      }
+
+      stats.push({ name: "General Stats", value: generalDesc, inline: true });
+      stats.push({ name: "Rank Stats", value: rankDesc, inline: true });
+      stats.push({ name: "Volume Stats", value: volumeDesc, inline: true });
+
       // Adding details for stat menu selected
       selectionEmbed
         .setTitle(`${searchData.name} Stats`)
-        .setDescription(
-          `Token Count: ${searchData.tokenCount}\nOn Sale Count: ${searchData.onSaleCount}\n7 day volume: ${searchData.volume?.["7day"]}`
-        );
+        .setDescription(searchData.description ?? "")
+        .addFields(stats);
       break;
     }
     case SelectMenuType.bidMenu: {
