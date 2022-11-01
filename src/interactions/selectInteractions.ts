@@ -100,7 +100,7 @@ export async function replySelectInteraction(
       const createdAt = new Date(
         Date.parse(searchData.createdAt) * 1000
       ).toDateString();
-      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated At: ${createdAt}`;
+      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated: ${createdAt}`;
       let rankDesc = "";
       let volumeDesc = "";
 
