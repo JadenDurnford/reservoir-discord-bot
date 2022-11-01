@@ -97,10 +97,11 @@ export async function replySelectInteraction(
   switch (interaction.customId) {
     case SelectMenuType.statMenu: {
       let stats: { name: string; value: string; inline: boolean }[] = [];
-      const createdAt = new Date(
+      /*       const createdAt = new Date(
         Date.parse(searchData.createdAt)
       ).toDateString();
-      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated: ${createdAt}`;
+      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated: ${createdAt}`; */
+      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}`;
       let rankDesc = "";
       let volumeDesc = "";
 
