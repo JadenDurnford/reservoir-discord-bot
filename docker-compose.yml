@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  # Container: redis
+  redis:
+    image: redis
+    container_name: cache
+    expose:
+      - 6379
+  # Container: discord bot
+  bot:
+    container_name: reservoir-discord-bot
+    build: .
+    command: node ./dist/index.js
+    depends_on:
+      - redis
+    env_file:
+      - .env
