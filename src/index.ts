@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import logger from "./utils/logger";
 import Discord from "./discord";
-import Redis from "ioredis";
+import waitPort from "wait-port";
 
 (async () => {
   try {
@@ -26,11 +26,25 @@ import Redis from "ioredis";
       RESERVOIR_API_KEY
     );
 
-    const redis = new Redis();
-    redis.on("ready", async () => {
-      // Listen for Discord events
-      await discord.handleEvents();
-    });
+    const params = {
+      host: "redis",
+      port: 6379,
+    };
+
+    waitPort(params)
+      .then(async ({ open, ipVersion }) => {
+        if (open) {
+          console.log(`The port is now open on IPv${ipVersion}!`);
+          // Listen for Discord events
+          await discord.handleEvents();
+        } else console.log("The port did not open before the timeout...");
+      })
+      .catch((err) => {
+        logger.error(
+          `An unknown error occured while waiting for the port: ${err}`
+        );
+        throw new Error(err);
+      });
   } catch (e) {
     if (e instanceof Error) {
       logger.error(e);
