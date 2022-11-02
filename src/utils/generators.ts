@@ -77,7 +77,10 @@ export async function selectionEmbedGen(
     url = `https://reservoir.market/collections/${searchData.id}`;
     image = searchData.image;
   } else if (menuId === SelectMenuType.bidMenu) {
-    if (searchData.topBid?.price) {
+    if (
+      searchData.topBid?.price &&
+      searchData.topBid?.sourceDomain !== "sudoswap.xyz"
+    ) {
       url = `https://${searchData.topBid.sourceDomain}`;
     } else {
       url = `https://reservoir.market/collections/${searchData.id}`;
