@@ -77,7 +77,11 @@ export async function selectionEmbedGen(
     url = `https://reservoir.market/collections/${searchData.id}`;
     image = searchData.image;
   } else if (menuId === SelectMenuType.bidMenu) {
-    url = `https://${searchData.topBid?.sourceDomain}`;
+    if (searchData.topBid?.price) {
+      url = `https://${searchData.topBid.sourceDomain}`;
+    } else {
+      url = `https://reservoir.market/collections/${searchData.id}`;
+    }
     image = searchData.image;
   }
 
