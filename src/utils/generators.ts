@@ -67,9 +67,17 @@ export async function selectionEmbedGen(
 
   // If floor price menu is used, return token image else return collection image
   let image: string | undefined;
+  let url: string | undefined;
   if (menuId === SelectMenuType.floorMenu) {
+    if (searchData.floorAsk?.token) {
+      url = `https://api.reservoir.tools/redirect/sources/${searchData.floorAsk.sourceDomain}/tokens/${searchData.floorAsk.token.contract}%3A${searchData.floorAsk.token.tokenId}/link/v2`;
+    }
     image = searchData.floorAsk?.token?.image;
-  } else {
+  } else if (menuId === SelectMenuType.statMenu) {
+    url = `https://reservoir.market/collections/${searchData.id}`;
+    image = searchData.image;
+  } else if (menuId === SelectMenuType.bidMenu) {
+    url = `https://${searchData.topBid?.sourceDomain}`;
     image = searchData.image;
   }
 
@@ -89,7 +97,7 @@ export async function selectionEmbedGen(
       .setColor(0x8b43e0)
       .setAuthor({
         name: searchData.name,
-        url: `https://reservoir.market/collections/${searchData.id}`,
+        url: url ?? `https://reservoir.market/collections/${searchData.id}`,
         iconURL: attachment
           ? `attachment://${attachment.name}`
           : image ?? constants.RESERVOIR_ICON,
