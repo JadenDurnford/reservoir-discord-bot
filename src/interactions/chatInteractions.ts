@@ -67,6 +67,7 @@ export default async function replyChatInteraction(
     await interaction.reply({
       embeds: [chatCommandEmbed],
       components: selectOptions.length !== 0 ? selectMenu : [],
+      ephemeral: true,
     });
   } catch (e) {
     if (e instanceof Error) {

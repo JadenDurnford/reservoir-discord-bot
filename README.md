@@ -90,6 +90,8 @@ Environment Variables
 | CHANNEL_ID | [The Discord channel you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
 | TRACKED_CONTRACT | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
 | RESERVOIR_API_KEY | Reservoir API key provided by the Reservoir Protocol. [Get your own API key](https://api.reservoir.tools/#/0.%20Auth/postApikeys). | 123e4567-e89b-12d3-a456-426614174000 |
+| REDIS_HOST | Redis host to connect to (For Docker set to "redis") | 127.0.0.1 |
+| REDIS_PORT | Redis port to connect to (For Docker set to "6379") | 6379 |
 
 Optional Variables
 | Constant | Description | Default |
