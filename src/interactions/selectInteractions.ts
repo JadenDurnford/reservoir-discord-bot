@@ -138,7 +138,11 @@ export async function replySelectInteraction(
           new ButtonBuilder()
             .setLabel("Accept Offer")
             .setStyle(5)
-            .setURL(`https://www.${searchData.topBid?.sourceDomain}`)
+            .setURL(
+              searchData.topBid?.sourceDomain === "sudoswap.xyz"
+                ? `https://reservoir.market/collections/${searchData.id}`
+                : `https://www.${searchData.topBid?.sourceDomain}`
+            )
         );
       } else {
         selectionEmbed.setDescription(`No bids found for ${searchData.name}`);
