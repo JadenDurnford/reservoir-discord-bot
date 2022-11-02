@@ -105,29 +105,29 @@ export async function replySelectInteraction(
       let rankDesc = "";
       let volumeDesc = "";
 
-      if (!searchData.description) {
-        if (searchData.discordUrl) {
-          generalDesc += `\n[Discord](${searchData.discordUrl})`;
-        }
-        if (searchData.externalUrl) {
-          generalDesc += `\n[External Site](${searchData.externalUrl})`;
-        }
-        if (searchData.twitterUsername) {
-          generalDesc += `\n[Twitter](https://twitter.com/${searchData.twitterUsername})`;
-        }
+      if (searchData.discordUrl) {
+        generalDesc += `\n[Discord](${searchData.discordUrl})`;
+      }
+      if (searchData.externalUrl) {
+        generalDesc += `\n[External Site](${searchData.externalUrl})`;
+      }
+      if (searchData.twitterUsername) {
+        generalDesc += `\n[Twitter](https://twitter.com/${searchData.twitterUsername})`;
       }
 
       for (const [key, value] of Object.entries(searchData.rank)) {
-        rankDesc += `${key}: ${value}\n`;
+        rankDesc += `${key}: ${value ?? "N/A"}\n`;
       }
 
       for (const [key, value] of Object.entries(searchData.volume)) {
-        volumeDesc += `${key}: ${value}\n`;
+        volumeDesc += `${key}: ${value ?? "N/A"}\n`;
       }
 
-      stats.push({ name: "General Stats", value: generalDesc, inline: true });
-      stats.push({ name: "Rank Stats", value: rankDesc, inline: true });
-      stats.push({ name: "Volume Stats", value: volumeDesc, inline: true });
+      stats.push(
+        { name: "General Stats", value: generalDesc, inline: true },
+        { name: "Rank Stats", value: rankDesc, inline: true },
+        { name: "Volume Stats", value: volumeDesc, inline: true }
+      );
 
       // Adding details for stat menu selected
       selectionEmbed
