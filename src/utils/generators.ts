@@ -53,7 +53,8 @@ export function baseEmbedGen(
  * @returns embed for discord selection interactions
  */
 export async function selectionEmbedGen(
-  searchDataResponse: paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]
+  searchDataResponse: paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"],
+  menuId: string
 ) {
   // Getting first collection from response
   const searchData = searchDataResponse?.[0];
@@ -64,14 +65,28 @@ export async function selectionEmbedGen(
     throw new Error("searchData is undefined");
   }
 
+  // If floor price menu is used, return token image else return collection image
+  let image: string | undefined;
+  let url: string | undefined;
+  if (menuId === SelectMenuType.floorMenu) {
+    if (searchData.floorAsk?.token) {
+      url = `https://api.reservoir.tools/redirect/sources/${searchData.floorAsk.sourceDomain}/tokens/${searchData.floorAsk.token.contract}%3A${searchData.floorAsk.token.tokenId}/link/v2`;
+    }
+    image = searchData.floorAsk?.token?.image;
+  } else if (menuId === SelectMenuType.statMenu) {
+    url = `https://reservoir.market/collections/${searchData.id}`;
+    image = searchData.image;
+  } else if (menuId === SelectMenuType.bidMenu) {
+    url = `https://${searchData.topBid?.sourceDomain}`;
+    image = searchData.image;
+  }
+
   // If image is webp, convert to png
-  const { headers } = await axios.get(
-    searchData.image ?? constants.RESERVOIR_ICON
-  );
+  const { headers } = await axios.get(image ?? constants.RESERVOIR_ICON);
   let attachment: AttachmentBuilder | undefined = undefined;
   if (headers["content-type"] === "image/webp") {
     attachment = await handleMediaConversion(
-      searchData.image ?? constants.RESERVOIR_ICON,
+      image ?? constants.RESERVOIR_ICON,
       searchData.name
     );
   }
@@ -82,15 +97,15 @@ export async function selectionEmbedGen(
       .setColor(0x8b43e0)
       .setAuthor({
         name: searchData.name,
-        url: `https://reservoir.tools/${searchData.id}`,
+        url: url ?? `https://reservoir.market/collections/${searchData.id}`,
         iconURL: attachment
           ? `attachment://${attachment.name}`
-          : searchData.image ?? constants.RESERVOIR_ICON,
+          : image ?? constants.RESERVOIR_ICON,
       })
       .setThumbnail(
         attachment
           ? `attachment://${attachment.name}`
-          : searchData.image ?? constants.RESERVOIR_ICON
+          : image ?? constants.RESERVOIR_ICON
       )
       .setTimestamp(),
     attachment: attachment,

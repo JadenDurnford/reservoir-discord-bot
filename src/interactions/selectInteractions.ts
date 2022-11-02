@@ -2,60 +2,46 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   CacheType,
-  EmbedBuilder,
   SelectMenuInteraction,
+  TextChannel,
 } from "discord.js";
 import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { selectionEmbedGen } from "../utils/generators";
 import { SelectMenuType } from "../utils/types";
 import constants from "../utils/constants";
+import Redis from "ioredis";
 
 /**
  * Handle to discord select menu interaction
  * @param {SelectMenuInteraction<CacheType>} interaction discord select menu interaction
  */
 export async function replySelectInteraction(
-  interaction: SelectMenuInteraction<CacheType>
+  interaction: SelectMenuInteraction<CacheType>,
+  redis: Redis,
+  channel: TextChannel
 ) {
   // Defer update to give time for image processing
-  await interaction.deferUpdate();
+  const message = await interaction.deferReply({ fetchReply: true });
 
-  // Building loading embed to display while loading user selection
-  let loadingEmbed = new EmbedBuilder()
-    .setColor(0x8b43e0)
-    .setTitle("Loading...")
-    .setAuthor({
-      name: "Reservoir Bot",
-      url: "https://reservoir.tools/",
-      iconURL: constants.RESERVOIR_ICON,
-    })
-    .setThumbnail(constants.RESERVOIR_ICON)
-    .setTimestamp();
-
-  switch (interaction.customId) {
-    case SelectMenuType.statMenu: {
-      loadingEmbed.setDescription("Loading collection stats...");
-      break;
+  // Check if the reference message is returned
+  if (message.reference?.messageId) {
+    // Get the reference message
+    const messageDet = await channel.messages.fetch(
+      message.reference.messageId
+    );
+    // Update reference message to reset select menus to placeholder
+    await interaction.webhook.editMessage(messageDet, "");
+    // Get the previous message id sent by reference
+    const oldMessageId = await redis.get(message.reference.messageId);
+    // If the previous message exists, delete it
+    if (oldMessageId) {
+      const oldMessage = await channel.messages.fetch(oldMessageId);
+      oldMessage.delete();
     }
-    case SelectMenuType.bidMenu: {
-      loadingEmbed.setDescription("Loading collection top bid...");
-      break;
-    }
-    case SelectMenuType.floorMenu: {
-      loadingEmbed.setDescription("Loading collection floor price...");
-      break;
-    }
-    default: {
-      loadingEmbed.setDescription("Loading...");
-    }
+    // Set the new message id
+    await redis.set(message.reference.messageId, message.id);
   }
-
-  // Displaying loading embed while loading user selection
-  await interaction.editReply({
-    embeds: [loadingEmbed],
-    files: [],
-  });
 
   // Set the collection id
   const id = interaction.values[0];
@@ -88,19 +74,16 @@ export async function replySelectInteraction(
 
   // Creating new embed for selection
   const { selectionEmbed, attachment } = await selectionEmbedGen(
-    searchDataResponse
+    searchDataResponse,
+    interaction.customId
   );
 
-  /*   let row: ActionRowBuilder<ButtonBuilder> | undefined = undefined; */
+  let row: ActionRowBuilder<ButtonBuilder> | undefined = undefined;
 
   // Adding embed details depending on select menu used
   switch (interaction.customId) {
     case SelectMenuType.statMenu: {
       let stats: { name: string; value: string; inline: boolean }[] = [];
-      /*       const createdAt = new Date(
-        Date.parse(searchData.createdAt)
-      ).toDateString();
-      let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}\nCreated: ${createdAt}`; */
       let generalDesc = `On Sale Count: ${searchData.onSaleCount}\nToken Count: ${searchData.tokenCount}`;
       let rankDesc = "";
       let volumeDesc = "";
@@ -139,7 +122,6 @@ export async function replySelectInteraction(
     case SelectMenuType.bidMenu: {
       // Adding details for bid menu selected
       selectionEmbed.setTitle(`${searchData.name} Top Bid`);
-
       // Return top bid info if it exists, else return no bids message
       if (searchData.topBid?.price && searchData.topBid?.maker) {
         selectionEmbed.setDescription(
@@ -152,12 +134,12 @@ export async function replySelectInteraction(
           )}](https://www.reservoir.market/address/${searchData.topBid.maker})`
         );
 
-        /* row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        row = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setLabel("Accept Offer")
             .setStyle(5)
-            .setURL(`https://www.reservoir.market/collections/${searchData.id}`)
-        ); */
+            .setURL(`https://www.${searchData.topBid?.sourceDomain}`)
+        );
       } else {
         selectionEmbed.setDescription(`No bids found for ${searchData.name}`);
       }
@@ -171,7 +153,8 @@ export async function replySelectInteraction(
       if (
         searchData.floorAsk?.price &&
         searchData.floorAsk?.maker &&
-        searchData.floorAsk?.token
+        searchData.floorAsk?.token?.tokenId &&
+        searchData.floorAsk?.sourceDomain
       ) {
         selectionEmbed.setDescription(
           `${searchData.floorAsk.token?.name} is the floor token, listed for ${
@@ -184,14 +167,14 @@ export async function replySelectInteraction(
             searchData.floorAsk.maker
           })`
         );
-        /*         row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        row = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setLabel("Purchase")
             .setStyle(5)
             .setURL(
-              `https://www.reservoir.market/${searchData.id}/${searchData.floorAsk.token.tokenId}`
+              `https://api.reservoir.tools/redirect/sources/${searchData.floorAsk.sourceDomain}/tokens/${searchData.floorAsk.token.contract}%3A${searchData.floorAsk.token.tokenId}/link/v2`
             )
-        ); */
+        );
       } else {
         selectionEmbed.setDescription(
           `No floor price found for ${searchData.name}`
@@ -214,6 +197,7 @@ export async function replySelectInteraction(
     content: "",
     embeds: [selectionEmbed],
     files: attachment ? [attachment] : [],
+    components: row ? [row] : [],
   });
 
   // Log success
