@@ -14,16 +14,22 @@ import waitPort from "wait-port";
     const TOKEN: string | undefined = process.env.TOKEN;
     const RESERVOIR_API_KEY: string | undefined = process.env.RESERVOIR_API_KEY;
     const APPLICATION_ID: string | undefined = process.env.APPLICATION_ID;
+    const REDIS_HOST: string | undefined = process.env.REDIS_HOST;
+    const REDIS_PORT: number | undefined = Number(process.env.REDIS_PORT);
     if (
       !TRACKED_CONTRACT ||
       !CHANNEL_ID ||
       !TOKEN ||
       !RESERVOIR_API_KEY ||
-      !APPLICATION_ID
+      !APPLICATION_ID ||
+      !REDIS_HOST ||
+      !REDIS_PORT
     ) {
       logger.error("Missing env vars");
       throw new Error("Missing env vars");
     }
+
+    const REDIS_URL = { REDIS_PORT, REDIS_HOST };
 
     // Setup Discord
     const discord = new Discord(
@@ -31,12 +37,13 @@ import waitPort from "wait-port";
       CHANNEL_ID,
       TOKEN,
       RESERVOIR_API_KEY,
-      APPLICATION_ID
+      APPLICATION_ID,
+      REDIS_URL
     );
 
     const params = {
-      host: "redis",
-      port: 6379,
+      host: REDIS_HOST,
+      port: REDIS_PORT,
     };
 
     waitPort(params)

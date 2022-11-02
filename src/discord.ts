@@ -1,4 +1,10 @@
-import { Client, GatewayIntentBits, ChannelType, Events } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  ChannelType,
+  Events,
+  TextChannel,
+} from "discord.js";
 import logger from "./utils/logger";
 import { floorPoll } from "./handlers/floorPoll";
 import { bidPoll } from "./handlers/bidPoll";
@@ -19,6 +25,8 @@ export default class Discord {
   private apiKey: string;
   // Discord Bot Application ID
   private applicationId: string;
+  // Redis connection url
+  private redisURL: {};
   // Setting Discord bot permissions
   client = new Client({
     intents: [
@@ -39,35 +47,23 @@ export default class Discord {
     channelId: string,
     token: string,
     apiKey: string,
-    applicationId: string
+    applicationId: string,
+    redisURL: {}
   ) {
     this.contractAddress = contractAddress;
     this.channelId = channelId;
     this.token = token;
     this.apiKey = apiKey;
     this.applicationId = applicationId;
+    this.redisURL = redisURL;
   }
 
   /**
    * Check for new floor price and top bid events, and alert the channel if there are any
    */
-  async poll(): Promise<void> {
-    // Getting bot channel
-    const channel = this.client.channels.cache.get(this.channelId);
-
-    // Log failure + throw on channel not found
-    if (!channel) {
-      logger.error("Could not connect to channel");
-      throw new Error("Could not connect to channel");
-    }
-
-    // Log failure + throw on incorrect channel type
-    if (channel.type !== ChannelType.GuildText) {
-      logger.error("Channel is not a text channel");
-      throw new Error("Channel is not a text channel");
-    }
+  async poll(channel: TextChannel): Promise<void> {
     // Setting up Redis
-    const redis = new Redis(6379, "redis");
+    const redis = new Redis(this.redisURL);
 
     // Get new floor price and top bid data
     Promise.allSettled([
@@ -75,7 +71,7 @@ export default class Discord {
       bidPoll(channel, this.contractAddress, this.apiKey, redis),
     ]);
     // Collecting new data in 5s
-    setTimeout(() => this.poll(), 5000);
+    setTimeout(() => this.poll(channel), 5000);
   }
 
   /**
@@ -89,21 +85,51 @@ export default class Discord {
     this.client.on(Events.ClientReady, async () => {
       // Log Discord bot online
       logger.info(`Discord bot is connected as ${this.client.user?.tag}`);
+      // Getting bot channel
+      const channel = this.client.channels.cache.get(this.channelId);
 
+      // Log failure + throw on channel not found
+      if (!channel) {
+        logger.error("Could not connect to channel");
+        throw new Error("Could not connect to channel");
+      }
+
+      // Log failure + throw on incorrect channel type
+      if (channel.type !== ChannelType.GuildText) {
+        logger.error("Channel is not a text channel");
+        throw new Error("Channel is not a text channel");
+      }
       // Starting poll process
       if (constants.ALERT_ENABLED) {
-        await this.poll();
+        await this.poll(channel);
       }
     });
 
+    // Setting up Redis
+    const redis = new Redis(this.redisURL);
+
     // Handle user interaction creation
     this.client.on(Events.InteractionCreate, async (interaction) => {
+      // Getting bot channel
+      const channel = this.client.channels.cache.get(this.channelId);
+
+      // Log failure + throw on channel not found
+      if (!channel) {
+        logger.error("Could not connect to channel");
+        throw new Error("Could not connect to channel");
+      }
+
+      // Log failure + throw on incorrect channel type
+      if (channel.type !== ChannelType.GuildText) {
+        logger.error("Channel is not a text channel");
+        throw new Error("Channel is not a text channel");
+      }
       if (interaction.isChatInputCommand()) {
         // Handle user chat interaction
         await replyChatInteraction(interaction);
       } else if (interaction.isSelectMenu()) {
         // Handle user select menu interaction
-        await replySelectInteraction(interaction);
+        await replySelectInteraction(interaction, redis, channel);
       } else {
         // Log unknown interaction
         logger.error(`Unknown interaction passed: ${interaction}`);
