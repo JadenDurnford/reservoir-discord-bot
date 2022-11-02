@@ -5,7 +5,7 @@
 ## About The Project
 
 Reservoir Discord Bot provides communities easy to use commands and alerts for their
-Discord server, which can be expanded and customized to their liking. Come test the bot out now in the [Reservoir discord server](https://discord.com/invite/j5K9fESNwh)!
+Discord server, which can be expanded and customized to their liking. Come test the bot out now in the [Reservoir discord server](https://discord.gg/fwUcYFSscT)!
 
 The Discord bot ships with the following functionality:
 
