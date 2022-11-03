@@ -82,7 +82,9 @@ export default async function replyChatInteraction(
 
     // Log success
     logger.info(
-      `Successfully called collection command: name=${name}, limit=${
+      `User ${interaction.member?.user.username}${
+        interaction.member?.user.discriminator
+      } successfully called collection command: name=${name}, limit=${
         limit ?? "not provided"
       }`
     );
