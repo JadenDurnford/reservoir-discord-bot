@@ -115,7 +115,7 @@ export async function replySelectInteraction(
       // Adding details for stat menu selected
       selectionEmbed
         .setTitle(`${searchData.name} Stats`)
-        .setDescription(searchData.description ?? "")
+        .setDescription(searchData.description ?? "No description found.")
         .addFields(stats);
       break;
     }
