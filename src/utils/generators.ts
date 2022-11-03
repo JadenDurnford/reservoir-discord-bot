@@ -92,14 +92,13 @@ export async function selectionEmbedGen(
     image = searchData.image;
   }
 
+  const returnImage = image ?? constants.RESERVOIR_ICON;
+
   // If image is webp, convert to png
-  const { headers } = await axios.get(image ?? constants.RESERVOIR_ICON);
+  const { headers } = await axios.get(returnImage);
   let attachment: AttachmentBuilder | undefined = undefined;
   if (headers["content-type"] === "image/webp") {
-    attachment = await handleMediaConversion(
-      image ?? constants.RESERVOIR_ICON,
-      searchData.name
-    );
+    attachment = await handleMediaConversion(returnImage, searchData.name);
   }
 
   // Return selection embed template
@@ -109,14 +108,10 @@ export async function selectionEmbedGen(
       .setAuthor({
         name: searchData.name,
         url: url ?? `https://reservoir.market/collections/${searchData.id}`,
-        iconURL: attachment
-          ? `attachment://${attachment.name}`
-          : image ?? constants.RESERVOIR_ICON,
+        iconURL: attachment ? `attachment://${attachment.name}` : returnImage,
       })
       .setThumbnail(
-        attachment
-          ? `attachment://${attachment.name}`
-          : image ?? constants.RESERVOIR_ICON
+        attachment ? `attachment://${attachment.name}` : returnImage
       )
       .setTimestamp(),
     attachment: attachment,
