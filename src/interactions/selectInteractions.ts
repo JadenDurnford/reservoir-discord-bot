@@ -9,7 +9,6 @@ import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { selectionEmbedGen } from "../utils/generators";
 import { SelectMenuType } from "../utils/types";
-import constants from "../utils/constants";
 import Redis from "ioredis";
 
 /**
@@ -73,7 +72,7 @@ export async function replySelectInteraction(
   }
 
   // Creating new embed for selection
-  const { selectionEmbed, attachment } = await selectionEmbedGen(
+  const { selectionEmbed, attachment, url } = await selectionEmbedGen(
     searchDataResponse,
     interaction.customId
   );
@@ -123,11 +122,10 @@ export async function replySelectInteraction(
       // Adding details for bid menu selected
       selectionEmbed.setTitle(`${searchData.name} Top Bid`);
       // Return top bid info if it exists, else return no bids message
-      if (searchData.topBid?.price && searchData.topBid?.maker) {
+      if (searchData.topBid?.price?.amount && searchData.topBid?.maker) {
         selectionEmbed.setDescription(
           `The top bid on the collection is ${
-            searchData.topBid.price.netAmount?.native ??
-            searchData.topBid.price.amount?.native
+            searchData.topBid.price.amount.native
           }Ξ made by [${searchData.topBid.maker.substring(
             0,
             6
@@ -135,14 +133,7 @@ export async function replySelectInteraction(
         );
 
         row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setLabel("Accept Offer")
-            .setStyle(5)
-            .setURL(
-              searchData.topBid?.sourceDomain === "sudoswap.xyz"
-                ? `https://reservoir.market/collections/${searchData.id}`
-                : `https://www.${searchData.topBid?.sourceDomain}`
-            )
+          new ButtonBuilder().setLabel("Accept Offer").setStyle(5).setURL(url)
         );
       } else {
         selectionEmbed.setDescription(`No bids found for ${searchData.name}`);

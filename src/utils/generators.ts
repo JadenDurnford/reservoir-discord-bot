@@ -66,8 +66,9 @@ export async function selectionEmbedGen(
   }
 
   // If floor price menu is used, return token image else return collection image
+  // If
   let image: string | undefined;
-  let url: string | undefined;
+  let url: string = `https://reservoir.market/collections/${searchData.id}`;
   if (menuId === SelectMenuType.floorMenu) {
     if (searchData.floorAsk?.token) {
       url = `https://api.reservoir.tools/redirect/sources/${searchData.floorAsk.sourceDomain}/tokens/${searchData.floorAsk.token.contract}%3A${searchData.floorAsk.token.tokenId}/link/v2`;
@@ -77,11 +78,14 @@ export async function selectionEmbedGen(
     url = `https://reservoir.market/collections/${searchData.id}`;
     image = searchData.image;
   } else if (menuId === SelectMenuType.bidMenu) {
-    if (
-      searchData.topBid?.price &&
-      searchData.topBid?.sourceDomain !== "sudoswap.xyz"
-    ) {
-      url = `https://${searchData.topBid.sourceDomain}`;
+    if (searchData.topBid?.price) {
+      if (searchData.topBid.sourceDomain === "opensea.io") {
+        url = `https://${searchData.topBid.sourceDomain}/collection/${searchData.slug}`;
+      } else if (searchData.topBid.sourceDomain === "looksrare.org") {
+        url = `https://${searchData.topBid.sourceDomain}/collections/${searchData.id}`;
+      } else if (searchData.topBid.sourceDomain === "x2y2.io") {
+        url = `https://${searchData.topBid.sourceDomain}/collection/${searchData.slug}/items`;
+      }
     } else {
       url = `https://reservoir.market/collections/${searchData.id}`;
     }
@@ -116,6 +120,7 @@ export async function selectionEmbedGen(
       )
       .setTimestamp(),
     attachment: attachment,
+    url: url,
   };
 }
 

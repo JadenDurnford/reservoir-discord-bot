@@ -112,7 +112,6 @@ export default class Discord {
     this.client.on(Events.InteractionCreate, async (interaction) => {
       // Getting bot channel
       const channel = this.client.channels.cache.get(this.channelId);
-
       // Log failure + throw on channel not found
       if (!channel) {
         logger.error("Could not connect to channel");
@@ -124,6 +123,17 @@ export default class Discord {
         logger.error("Channel is not a text channel");
         throw new Error("Channel is not a text channel");
       }
+
+      if (
+        !interaction.inGuild() &&
+        (interaction.isChatInputCommand() || interaction.isSelectMenu())
+      ) {
+        await interaction.reply(
+          "Returning data in dms coming in a later version..."
+        );
+        return;
+      }
+
       if (interaction.isChatInputCommand()) {
         // Handle user chat interaction
         await replyChatInteraction(interaction);
