@@ -4,7 +4,6 @@ import {
   CacheType,
   SelectMenuInteraction,
   TextBasedChannel,
-  TextChannel,
 } from "discord.js";
 import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
@@ -74,10 +73,8 @@ export async function replySelectInteraction(
     }
 
     // Creating new embed for selection
-    const { selectionEmbed, attachment, url } = await selectionEmbedGen(
-      searchDataResponse,
-      interaction.customId
-    );
+    const { selectionEmbed, attachment, bannerAttachment, url } =
+      await selectionEmbedGen(searchDataResponse, interaction.customId);
 
     let row: ActionRowBuilder<ButtonBuilder> | undefined = undefined;
 
@@ -116,8 +113,17 @@ export async function replySelectInteraction(
         // Adding details for stat menu selected
         selectionEmbed
           .setTitle(`${searchData.name} Stats`)
-          .setDescription(searchData.description ?? "No description found.")
-          .addFields(stats);
+          .setDescription(
+            searchData.description && searchData.description.length > 0
+              ? searchData.description
+              : "No description found."
+          )
+          .addFields(stats)
+          .setImage(
+            bannerAttachment
+              ? `attachment://${bannerAttachment.name}`
+              : searchData.banner ?? null
+          );
         break;
       }
       case SelectMenuType.bidMenu: {
@@ -193,11 +199,20 @@ export async function replySelectInteraction(
       }
     }
 
+    let fileArray = [];
+
+    if (attachment) {
+      fileArray.push(attachment);
+    }
+    if (bannerAttachment) {
+      fileArray.push(bannerAttachment);
+    }
+
     // Update embed to display selected information
     await interaction.editReply({
       content: "",
       embeds: [selectionEmbed],
-      files: attachment ? [attachment] : [],
+      files: fileArray,
       components: row ? [row] : [],
     });
 
