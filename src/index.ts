@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import logger from "./utils/logger";
 import Discord from "./discord";
 import waitPort from "wait-port";
+import constants from "./utils/constants";
 
 (async () => {
   try {
@@ -9,37 +10,33 @@ import waitPort from "wait-port";
     dotenv.config();
 
     // Check env vars
-    const TRACKED_CONTRACT: string | undefined = process.env.TRACKED_CONTRACT;
-    const CHANNEL_ID: string | undefined = process.env.CHANNEL_ID;
     const TOKEN: string | undefined = process.env.TOKEN;
     const RESERVOIR_API_KEY: string | undefined = process.env.RESERVOIR_API_KEY;
-    const APPLICATION_ID: string | undefined = process.env.APPLICATION_ID;
-    const REDIS_HOST: string | undefined = process.env.REDIS_HOST;
-    const REDIS_PORT: number | undefined = Number(process.env.REDIS_PORT);
+    const TRACKED_CONTRACTS: string[] | undefined = constants.TRACKED_CONTRACTS;
+    const CHANNEL_IDS: object | undefined = constants.CHANNEL_IDS;
+    const ALERT_CONTRACT: string | undefined = constants.ALERT_CONTRACT;
+    const APPLICATION_ID: string | undefined = constants.APPLICATION_ID;
+    const REDIS_PORT: number | undefined = constants.REDIS_PORT;
+    const REDIS_HOST: string | undefined = constants.REDIS_HOST;
+
     if (
-      !TRACKED_CONTRACT ||
-      !CHANNEL_ID ||
       !TOKEN ||
       !RESERVOIR_API_KEY ||
+      !TRACKED_CONTRACTS ||
+      !CHANNEL_IDS ||
+      !ALERT_CONTRACT ||
       !APPLICATION_ID ||
-      !REDIS_HOST ||
-      !REDIS_PORT
+      !REDIS_PORT ||
+      !REDIS_HOST
     ) {
       logger.error("Missing env vars");
       throw new Error("Missing env vars");
     }
 
-    const REDIS_URL = { REDIS_PORT, REDIS_HOST };
+    const REDIS_URL = { port: REDIS_PORT, host: REDIS_HOST };
 
     // Setup Discord
-    const discord = new Discord(
-      TRACKED_CONTRACT,
-      CHANNEL_ID,
-      TOKEN,
-      RESERVOIR_API_KEY,
-      APPLICATION_ID,
-      REDIS_URL
-    );
+    const discord = new Discord(TOKEN, RESERVOIR_API_KEY, REDIS_URL);
 
     const params = {
       host: REDIS_HOST,

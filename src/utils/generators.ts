@@ -68,6 +68,7 @@ export async function selectionEmbedGen(
   // If floor price menu is used, return token image else return collection image
   // If
   let image: string | undefined;
+  let banner: string | undefined;
   let url: string = `https://reservoir.market/collections/${searchData.id}`;
   if (menuId === SelectMenuType.floorMenu) {
     if (searchData.floorAsk?.token) {
@@ -77,6 +78,9 @@ export async function selectionEmbedGen(
   } else if (menuId === SelectMenuType.statMenu) {
     url = `https://reservoir.market/collections/${searchData.id}`;
     image = searchData.image;
+    if (searchData.banner) {
+      banner = searchData.banner;
+    }
   } else if (menuId === SelectMenuType.bidMenu) {
     if (searchData.topBid?.price) {
       if (searchData.topBid.sourceDomain === "opensea.io") {
@@ -96,9 +100,24 @@ export async function selectionEmbedGen(
 
   // If image is webp, convert to png
   const { headers } = await axios.get(returnImage);
+  let bannerResponse = null;
+  if (banner) {
+    bannerResponse = await axios.get(banner);
+  }
   let attachment: AttachmentBuilder | undefined = undefined;
+  let bannerAttachment: AttachmentBuilder | undefined = undefined;
   if (headers["content-type"] === "image/webp") {
     attachment = await handleMediaConversion(returnImage, searchData.name);
+  }
+  if (
+    banner &&
+    bannerResponse &&
+    bannerResponse["headers"]["content-type"] === "image/webp"
+  ) {
+    bannerAttachment = await handleMediaConversion(
+      banner,
+      searchData.name + "banner"
+    );
   }
 
   // Return selection embed template
@@ -108,13 +127,16 @@ export async function selectionEmbedGen(
       .setAuthor({
         name: searchData.name,
         url: url ?? `https://reservoir.market/collections/${searchData.id}`,
-        iconURL: attachment ? `attachment://${attachment.name}` : returnImage,
+        iconURL: attachment
+          ? `attachment://${attachment.name}`
+          : returnImage ?? undefined,
       })
       .setThumbnail(
-        attachment ? `attachment://${attachment.name}` : returnImage
+        attachment ? `attachment://${attachment.name}` : returnImage ?? null
       )
       .setTimestamp(),
     attachment: attachment,
+    bannerAttachment: bannerAttachment,
     url: url,
   };
 }
