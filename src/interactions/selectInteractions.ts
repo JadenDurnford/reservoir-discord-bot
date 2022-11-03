@@ -3,6 +3,7 @@ import {
   ButtonBuilder,
   CacheType,
   SelectMenuInteraction,
+  TextBasedChannel,
   TextChannel,
 } from "discord.js";
 import logger from "../utils/logger";
@@ -18,7 +19,7 @@ import Redis from "ioredis";
 export async function replySelectInteraction(
   interaction: SelectMenuInteraction<CacheType>,
   redis: Redis,
-  channel: TextChannel
+  channel: TextBasedChannel
 ) {
   // Defer update to give time for image processing
   const message = await interaction.deferReply({ fetchReply: true });

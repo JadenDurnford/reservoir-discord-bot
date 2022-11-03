@@ -111,7 +111,12 @@ export default class Discord {
     // Handle user interaction creation
     this.client.on(Events.InteractionCreate, async (interaction) => {
       // Getting bot channel
-      const channel = this.client.channels.cache.get(this.channelId);
+      if (!interaction.channelId) {
+        logger.error("Could not connect to channel");
+        throw new Error("Could not connect to channel");
+      }
+      await this.client.channels.fetch(interaction.channelId);
+      const channel = this.client.channels.cache.get(interaction.channelId);
       // Log failure + throw on channel not found
       if (!channel) {
         logger.error("Could not connect to channel");
@@ -119,12 +124,17 @@ export default class Discord {
       }
 
       // Log failure + throw on incorrect channel type
-      if (channel.type !== ChannelType.GuildText) {
-        logger.error("Channel is not a text channel");
-        throw new Error("Channel is not a text channel");
+      if (
+        channel.type !== ChannelType.GuildText &&
+        channel.type !== ChannelType.DM
+      ) {
+        logger.error(
+          `interaction called in unsupported ChannelType ${channel.type}`
+        );
+        return;
       }
 
-      if (
+      /*       if (
         !interaction.inGuild() &&
         (interaction.isChatInputCommand() || interaction.isSelectMenu())
       ) {
@@ -132,7 +142,7 @@ export default class Discord {
           "Returning data in dms coming in a later version..."
         );
         return;
-      }
+      } */
 
       if (interaction.isChatInputCommand()) {
         // Handle user chat interaction
