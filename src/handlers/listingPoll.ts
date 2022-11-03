@@ -107,7 +107,7 @@ export async function listingPoll(
 
       const listingEmbed = new EmbedBuilder()
         .setColor(0x8b43e0)
-        .setTitle(`${tokenDetails.name} has been listed!`)
+        .setTitle(`${tokenDetails.name?.trim()} has been listed!`)
         .setAuthor({
           name: `${tokenDetails.collection.name}`,
           url: `https://forgotten.market/${tokenDetails.contract}`,
