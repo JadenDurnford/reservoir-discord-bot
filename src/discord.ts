@@ -134,16 +134,6 @@ export default class Discord {
         return;
       }
 
-      /*       if (
-        !interaction.inGuild() &&
-        (interaction.isChatInputCommand() || interaction.isSelectMenu())
-      ) {
-        await interaction.reply(
-          "Returning data in dms coming in a later version..."
-        );
-        return;
-      } */
-
       if (interaction.isChatInputCommand()) {
         // Handle user chat interaction
         await replyChatInteraction(interaction);
