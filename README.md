@@ -86,19 +86,20 @@ Environment Variables
 | Environment Variable | Description | Example |
 |----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 | TOKEN | [Your Discord bot's token](https://discordjs.guide/preparations/setting-up-a-bot-application.html#your-bot-s-token) | NzkyNzE1NDU0MTk2MDg4ODQy.X-hvzA.Ovy4MCQywSkoMRRclStW4xAYK7I |
-| APPLICATION_ID | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
-| CHANNEL_ID | [The Discord channel you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
-| TRACKED_CONTRACT | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
 | RESERVOIR_API_KEY | Reservoir API key provided by the Reservoir Protocol. [Get your own API key](https://api.reservoir.tools/#/0.%20Auth/postApikeys). | 123e4567-e89b-12d3-a456-426614174000 |
-| REDIS_HOST | Redis host to connect to (For Docker set to "redis") | 127.0.0.1 |
-| REDIS_PORT | Redis port to connect to (For Docker set to "6379") | 6379 |
 
-Optional Variables
+Constants
 | Constant | Description | Default |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60 \* 30 (30 minutes) |
 | PRICE_CHANGE_OVERRIDE | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
 | ALERT_ENABLED | Enable/disable new floor price and top bid event alerts | true (enabled) |
+| APPLICATION_ID | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
+| CHANNEL_IDS | [The Discord channels you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
+| ALERT_CONTRACT | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
+| TRACKED_CONTRACTS | The contract address(es) of the collection(s) you want to be alerted of new listings and sales | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
+| REDIS_HOST | Redis host to connect to (For Docker set to "redis") | 127.0.0.1 |
+| REDIS_PORT | Redis port to connect to (For Docker set to "6379") | 6379 |
 
 ## Contact
 
