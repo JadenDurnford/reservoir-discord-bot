@@ -202,7 +202,9 @@ export async function replySelectInteraction(
     });
 
     // Log success
-    logger.info(`Updated embed for select interaction ${id}`);
+    logger.info(
+      `User ${interaction.member?.user.username}${interaction.member?.user.discriminator} Updated embed for select interaction ${id}`
+    );
   } catch (e) {
     await interaction.editReply(
       "Something went wrong, please try again later."
