@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
+  ChannelType,
 } from "discord.js";
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
@@ -15,6 +16,8 @@ const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
  * Check top bid events to see if a new one was created since last alert
  * @param {TextChannel} channel channel to send top bid alert to
  * @param {string} contractAddress collection to check for top bid events
+ * @param {string} apiKey Reservoir API Key
+ * @param {Redis} redis Redis instance
  */
 export async function bidPoll(
   channel: TextChannel,
@@ -22,8 +25,14 @@ export async function bidPoll(
   apiKey: string,
   redis: Redis
 ) {
-  if (!constants.ALERT_ENABLED.bid) {
-    logger.info("bid disabled");
+  if (!constants.ALERT_ENABLED.bid || contractAddress?.length <= 0) {
+    return;
+  }
+  if (channel === undefined) {
+    logger.error("top bid channel is undefined");
+    return;
+  } else if (channel.type !== ChannelType.GuildText) {
+    logger.error("top bid channel is not a text channel");
     return;
   }
   try {
@@ -42,14 +51,14 @@ export async function bidPoll(
     // Getting the most recent top bid event
     const topBid = topBidResponse.events?.[0];
 
-    // Log failure + throw if top bid event couldn't be pulled
+    // Log failure + return if top bid event couldn't be pulled
     if (
       !topBid?.event?.id ||
       !topBid?.topBid?.price ||
       !topBid?.topBid?.maker
     ) {
-      logger.error("Could not pull top bid");
-      throw new Error("Could not pull top bid");
+      logger.error(`Could not pull top bid for ${contractAddress}`);
+      return;
     }
 
     // Pull cached top bid event id from Redis
@@ -78,10 +87,10 @@ export async function bidPoll(
         constants.ALERT_COOLDOWN
       );
 
-      // Log failure + throw if top bid info couldn't be set
+      // Log failure + return if top bid info couldn't be set
       if (success !== "OK" || cooldownSuccess !== "OK") {
         logger.error("Could not set new topbid eventid");
-        throw new Error("Could not set new topbid eventid");
+        return;
       }
 
       // Getting top bid collection from Reservoir
@@ -95,10 +104,10 @@ export async function bidPoll(
       // Getting top bid collection details
       const bidCollection = bidCollectionResponse?.[0];
 
-      // Log failure + throw if collection details don't exist
+      // Log failure + return if collection details don't exist
       if (!bidCollection || !bidCollection.name) {
         logger.error("Could not collect stats");
-        throw new Error("Could not collect stats");
+        return;
       }
 
       // Generating top bid token Discord alert embed

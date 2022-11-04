@@ -2,6 +2,7 @@ import Redis from "ioredis";
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ChannelType,
   EmbedBuilder,
   TextChannel,
 } from "discord.js";
@@ -12,9 +13,11 @@ import constants from "../utils/constants";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 /**
- * Check floor price events to see if it has changed since last alert
- * @param {TextChannel} channel channel to send floor price alert to
- * @param {string} contractAddress collection to check for top bid events
+ * Check listings to see if there are new ones since the last alert
+ * @param {TextChannel} channel channel to send new listings alerts
+ * @param {string[]} contractArray collections to check for new listings
+ * @param {string} apiKey Reservoir API Key
+ * @param {Redis} redis Redis instance to save order ids
  */
 export async function listingPoll(
   channel: TextChannel,
@@ -22,8 +25,14 @@ export async function listingPoll(
   apiKey: string,
   redis: Redis
 ) {
-  if (!constants.ALERT_ENABLED.listings) {
-    logger.info("listings disabled");
+  if (!constants.ALERT_ENABLED.listings || contractArray?.length <= 0) {
+    return;
+  }
+  if (channel === undefined) {
+    logger.error("listings channel is undefined");
+    return;
+  } else if (channel.type !== ChannelType.GuildText) {
+    logger.error("listings channel is not a text channel");
     return;
   }
   try {
@@ -45,10 +54,10 @@ export async function listingPoll(
     // Getting the most recent floor ask event
     const listings = listingResponse.orders;
 
-    // Log failure + throw if floor event couldn't be pulled
+    // Log failure + return if floor event couldn't be pulled
     if (!listings) {
-      logger.error("Could not pull listings");
-      throw new Error("Could not pull listings");
+      logger.error(`Could not pull listings for ${contractArray}`);
+      return;
     }
 
     // Pull cached listing event id from Redis

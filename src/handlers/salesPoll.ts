@@ -2,6 +2,7 @@ import Redis from "ioredis";
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ChannelType,
   EmbedBuilder,
   TextChannel,
 } from "discord.js";
@@ -25,8 +26,14 @@ export async function salePoll(
   apiKey: string,
   redis: Redis
 ) {
-  if (!constants.ALERT_ENABLED.sales) {
-    logger.info("sales disabled");
+  if (!constants.ALERT_ENABLED.sales || contractArray?.length <= 0) {
+    return;
+  }
+  if (channel === undefined) {
+    logger.error("sales channel is undefined");
+    return;
+  } else if (channel.type !== ChannelType.GuildText) {
+    logger.error("sales channel is not a text channel");
     return;
   }
   try {
@@ -45,10 +52,10 @@ export async function salePoll(
     // Getting the most recent sales event
     const sales = salesResponse.sales;
 
-    // Log failure + throw if floor event couldn't be pulled
+    // Log failure + return if floor event couldn't be pulled
     if (!sales) {
-      logger.error("Could not pull listings");
-      throw new Error("Could not pull listings");
+      logger.error(`Could not pull sales for ${contractArray}`);
+      return;
     }
 
     // Pull cached sales event id from Redis

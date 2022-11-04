@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
+  ChannelType,
 } from "discord.js";
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
@@ -14,6 +15,8 @@ const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
  * Check floor price events to see if it has changed since last alert
  * @param {TextChannel} channel channel to send floor price alert to
  * @param {string} contractAddress collection to check for top bid events
+ * @param {string} apiKey Reservoir API Key
+ * @param {Redis} redis Redis instance
  */
 export async function floorPoll(
   channel: TextChannel,
@@ -21,8 +24,14 @@ export async function floorPoll(
   apiKey: string,
   redis: Redis
 ) {
-  if (!constants.ALERT_ENABLED.floor) {
-    logger.info("floor disabled");
+  if (!constants.ALERT_ENABLED.floor || contractAddress?.length <= 0) {
+    return;
+  }
+  if (channel === undefined) {
+    logger.error("floor price channel is undefined");
+    return;
+  } else if (channel.type !== ChannelType.GuildText) {
+    logger.error("floor price channel is not a text channel");
     return;
   }
   try {
@@ -41,20 +50,19 @@ export async function floorPoll(
     // Getting the most recent floor ask event
     const floorAsk = floorAskResponse.events?.[0];
 
-    // Log failure + throw if floor event couldn't be pulled
+    // Log failure + return if floor event couldn't be pulled
     if (
       !floorAsk?.event?.id ||
       !floorAsk.floorAsk?.tokenId ||
       !floorAsk.floorAsk?.price ||
       !floorAsk?.event?.createdAt
     ) {
-      logger.error("Could not pull floor ask");
-      throw new Error("Could not pull floor ask");
+      logger.error(`Could not pull floor ask for ${contractAddress}`);
+      return;
     }
 
     // Pull cached floor ask event id from Redis
     const cachedId: string | null = await redis.get("flooreventid");
-    // Hot path: check recent event doesn't match cached event
 
     // If most recent event matchs cached event exit function
     if (Number(floorAsk.event.id) === Number(cachedId)) {
@@ -97,14 +105,14 @@ export async function floorPoll(
         floorAsk.floorAsk.price
       );
 
-      // Log failure + throw if floor ask info couldn't be set
+      // Log failure + return if floor ask info couldn't be set
       if (
         idSuccess !== "OK" ||
         cooldownSuccess !== "OK" ||
         priceSuccess !== "OK"
       ) {
         logger.error("Could not set new floorprice info");
-        throw new Error("Could not set new floorprice info");
+        return;
       }
 
       // Getting floor ask token from Reservoir
@@ -121,7 +129,7 @@ export async function floorPoll(
       // Getting the token details
       const floorToken = tokenResponse.tokens?.[0];
 
-      // Log failure + throw if token details don't exist
+      // Log failure + return if token details don't exist
       if (
         !floorToken?.token?.collection ||
         !floorToken?.token?.owner ||
@@ -129,7 +137,7 @@ export async function floorPoll(
         !floorToken?.token?.name
       ) {
         logger.error("Could not pull floor token");
-        throw new Error("Could not pull floor token");
+        return;
       }
 
       // create attributes array for discord fields if the attributes exist

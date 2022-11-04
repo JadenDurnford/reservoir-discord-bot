@@ -14,7 +14,6 @@ import constants from "./utils/constants";
     const RESERVOIR_API_KEY: string | undefined = process.env.RESERVOIR_API_KEY;
     const TRACKED_CONTRACTS: string[] | undefined = constants.TRACKED_CONTRACTS;
     const CHANNEL_IDS: object | undefined = constants.CHANNEL_IDS;
-    const ALERT_CONTRACT: string | undefined = constants.ALERT_CONTRACT;
     const APPLICATION_ID: string | undefined = constants.APPLICATION_ID;
     const REDIS_PORT: number | undefined = constants.REDIS_PORT;
     const REDIS_HOST: string | undefined = constants.REDIS_HOST;
@@ -24,7 +23,6 @@ import constants from "./utils/constants";
       !RESERVOIR_API_KEY ||
       !TRACKED_CONTRACTS ||
       !CHANNEL_IDS ||
-      !ALERT_CONTRACT ||
       !APPLICATION_ID ||
       !REDIS_PORT ||
       !REDIS_HOST

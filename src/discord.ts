@@ -48,9 +48,9 @@ export default class Discord {
    * Alert new listings, sales, floor price and top bid
    */
   async poll(
-    listingChannel: TextChannel,
-    salesChannel: TextChannel,
-    mainChannel: TextChannel,
+    listingChannel: any,
+    salesChannel: any,
+    mainChannel: any,
     redis: Redis
   ): Promise<void> {
     // Call polling functions
@@ -98,28 +98,8 @@ export default class Discord {
         constants.CHANNEL_IDS.salesChannel
       );
 
-      // Log failure + throw on channel not found
-      if (!listingChannel || !salesChannel || !mainChannel) {
-        logger.error("Could not connect to channels");
-        throw new Error("Could not connect to channels");
-      }
-
-      // Log failure + throw on incorrect channel type
-      if (
-        listingChannel.type !== ChannelType.GuildText ||
-        salesChannel.type !== ChannelType.GuildText ||
-        mainChannel.type !== ChannelType.GuildText
-      ) {
-        logger.error(
-          `One of the channels is not a text channel listingChannel:${listingChannel.type}, salesChannel:${salesChannel.type}, mainChannel:${mainChannel.type}`
-        );
-        throw new Error("One of the channels is not a text channel");
-      }
-
       // Starting poll process
-      if (constants.ALERT_ENABLED) {
-        this.poll(listingChannel, salesChannel, mainChannel, redis);
-      }
+      this.poll(listingChannel, salesChannel, mainChannel, redis);
     });
 
     // Handle user interaction creation
