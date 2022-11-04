@@ -1,4 +1,11 @@
-import { CacheType, ChatInputCommandInteraction } from "discord.js";
+import {
+  CacheType,
+  ChatInputCommandInteraction,
+  Client,
+  DMChannel,
+  PartialDMChannel,
+  TextChannel,
+} from "discord.js";
 import logger from "../utils/logger";
 import getCollection from "../handlers/getCollection";
 import { baseEmbedGen, selectMenuGen } from "../utils/generators";
@@ -78,6 +85,8 @@ export default async function replyChatInteraction(
           try {
             await interaction.reply({
               embeds: [chatCommandEmbed],
+            });
+            await interaction.followUp({
               components: selectOptions.length !== 0 ? selectMenu : [],
               ephemeral: true,
             });
