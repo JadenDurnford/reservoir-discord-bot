@@ -43,20 +43,13 @@ import constants from "./utils/constants";
       port: REDIS_PORT,
     };
 
-    waitPort(params)
-      .then(async ({ open, ipVersion }) => {
-        if (open) {
-          console.log(`The port is now open on IPv${ipVersion}!`);
-          // Listen for Discord events
-          await discord.handleEvents();
-        } else console.log("The port did not open before the timeout...");
-      })
-      .catch((err) => {
-        logger.error(
-          `An unknown error occured while waiting for the port: ${err}`
-        );
-        throw new Error(err);
-      });
+    waitPort(params).then(async ({ open, ipVersion }) => {
+      if (open) {
+        console.log(`The port is now open on IPv${ipVersion}!`);
+        // Listen for Discord events
+        await discord.handleEvents();
+      } else console.log("The port did not open before the timeout...");
+    });
   } catch (e) {
     if (e instanceof Error) {
       logger.error(e);

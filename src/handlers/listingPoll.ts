@@ -8,6 +8,7 @@ import {
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 import handleMediaConversion from "../utils/media";
+import constants from "../utils/constants";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 /**
@@ -21,6 +22,10 @@ export async function listingPoll(
   apiKey: string,
   redis: Redis
 ) {
+  if (!constants.ALERT_ENABLED.listings) {
+    logger.info("listings disabled");
+    return;
+  }
   try {
     // Authorizing with Reservoir API Key
     await sdk.auth(apiKey);

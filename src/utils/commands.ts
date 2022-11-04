@@ -1,5 +1,6 @@
 import axios from "axios";
 import logger from "./logger";
+import { AlertType } from "./types";
 
 /**
  * Register Discord bot commands
@@ -15,6 +16,7 @@ export default async function commandBuilder(
     let slash_commands = [
       {
         name: "collection",
+        type: 1,
         description: "Search for NFT Collections using an identifying name",
         options: [
           {
@@ -29,6 +31,76 @@ export default async function commandBuilder(
             "type": 4,
           },
         ],
+      },
+      {
+        name: "disablealert",
+        type: 1,
+        description: "Disable an alert",
+        default_member_permission: "0",
+        options: [
+          {
+            "name": "name",
+            "description": "alert to disable",
+            "type": 3,
+            "required": true,
+            "choices": [
+              {
+                "name": AlertType.listings,
+                "value": AlertType.listings,
+              },
+              {
+                "name": AlertType.sales,
+                "value": AlertType.sales,
+              },
+              {
+                "name": AlertType.floor,
+                "value": AlertType.floor,
+              },
+              {
+                "name": AlertType.bid,
+                "value": AlertType.bid,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "enablealert",
+        type: 1,
+        description: "Enable an alert",
+        default_member_permission: "0",
+        options: [
+          {
+            "name": "name",
+            "description": "alert to enable",
+            "type": 3,
+            "required": true,
+            "choices": [
+              {
+                "name": AlertType.listings,
+                "value": AlertType.listings,
+              },
+              {
+                "name": AlertType.sales,
+                "value": AlertType.sales,
+              },
+              {
+                "name": AlertType.floor,
+                "value": AlertType.floor,
+              },
+              {
+                "name": AlertType.bid,
+                "value": AlertType.bid,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "listalerts",
+        type: 1,
+        description: "list all alert",
+        default_member_permission: "0",
       },
     ];
 

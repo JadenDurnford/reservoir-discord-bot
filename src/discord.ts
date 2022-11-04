@@ -9,7 +9,7 @@ import logger from "./utils/logger";
 import { floorPoll } from "./handlers/floorPoll";
 import { bidPoll } from "./handlers/bidPoll";
 import { listingPoll } from "./handlers/listingPoll";
-import { salesPoll } from "./handlers/salesPoll";
+import { salePoll } from "./handlers/salesPoll";
 import replyChatInteraction from "./interactions/chatInteractions";
 import { replySelectInteraction } from "./interactions/selectInteractions";
 import commandBuilder from "./utils/commands";
@@ -34,9 +34,9 @@ export default class Discord {
 
   /**
    * Initialize new Discord bot
-   * @param {string} contractAddress Tracked Collection
-   * @param channelId Discord channel to send alerts
-   * @param token Discord Bot Token
+   * @param {string} token Discord Bot Token
+   * @param {string} apiKey Reservoir API Key
+   * @param {object} redisURL Redis connection url
    */
   constructor(token: string, apiKey: string, redisURL: {}) {
     this.token = token;
@@ -45,7 +45,7 @@ export default class Discord {
   }
 
   /**
-   * Check for new floor price and top bid events, and alert the channel if there are any
+   * Alert new listings, sales, floor price and top bid
    */
   async poll(
     listingChannel: TextChannel,
@@ -53,26 +53,24 @@ export default class Discord {
     mainChannel: TextChannel,
     redis: Redis
   ): Promise<void> {
-    // Get new floor price and top bid data
-    await listingPoll(
-      listingChannel,
-      constants.TRACKED_CONTRACTS,
-      this.apiKey,
-      redis
-    );
-    await salesPoll(
-      salesChannel,
-      constants.TRACKED_CONTRACTS,
-      this.apiKey,
-      redis
-    );
-    /*     await floorPoll(mainChannel, constants.ALERT_CONTRACT, this.apiKey, redis);
-    await bidPoll(mainChannel, constants.ALERT_CONTRACT, this.apiKey, redis); */
-    // Collecting new data in 5s
-    setTimeout(
-      () => this.poll(listingChannel, salesChannel, mainChannel, redis),
-      1000
-    );
+    // Call polling functions
+    await Promise.allSettled([
+      listingPoll(
+        listingChannel,
+        constants.TRACKED_CONTRACTS,
+        this.apiKey,
+        redis
+      ),
+      salePoll(salesChannel, constants.TRACKED_CONTRACTS, this.apiKey, redis),
+      floorPoll(mainChannel, constants.ALERT_CONTRACT, this.apiKey, redis),
+      bidPoll(mainChannel, constants.ALERT_CONTRACT, this.apiKey, redis),
+    ]).then(() => {
+      // Collecting new data in 1s
+      setTimeout(
+        () => this.poll(listingChannel, salesChannel, mainChannel, redis),
+        1000
+      );
+    });
   }
 
   /**
@@ -88,7 +86,8 @@ export default class Discord {
     this.client.on(Events.ClientReady, async () => {
       // Log Discord bot online
       logger.info(`Discord bot is connected as ${this.client.user?.tag}`);
-      // Getting bot channel
+
+      // Getting bot channels
       const mainChannel = this.client.channels.cache.get(
         constants.CHANNEL_IDS.mainChannel
       );
@@ -111,7 +110,9 @@ export default class Discord {
         salesChannel.type !== ChannelType.GuildText ||
         mainChannel.type !== ChannelType.GuildText
       ) {
-        logger.error("One of the channels is not a text channel");
+        logger.error(
+          `One of the channels is not a text channel listingChannel:${listingChannel.type}, salesChannel:${salesChannel.type}, mainChannel:${mainChannel.type}`
+        );
         throw new Error("One of the channels is not a text channel");
       }
 

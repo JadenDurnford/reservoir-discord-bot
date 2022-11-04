@@ -3,7 +3,7 @@ export default {
     "https://cdn.discordapp.com/icons/872790973309153280/0dc1b70867aeeb2ee32563f575c191c6.webp?size=4096",
   ALERT_COOLDOWN: 60 * 30, // 30 minute cooldown
   PRICE_CHANGE_OVERRIDE: 0.1, // 10% price change
-  ALERT_ENABLED: true, // enable alerts
+  ALERT_ENABLED: { listings: true, sales: true, floor: true, bid: true }, // enable alerts
   TRACKED_CONTRACTS: [
     "0x9690b63eb85467be5267a3603f770589ab12dc95",
     "0xda5cf3a42ebacd2d8fcb53830b1025e01d37832d",
