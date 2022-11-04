@@ -12,9 +12,9 @@ import constants from "../utils/constants";
 export default async function replyChatInteraction(
   interaction: ChatInputCommandInteraction<CacheType>
 ) {
-  switch (interaction.commandName) {
-    case CommandType.collection:
-      {
+  try {
+    switch (interaction.commandName) {
+      case CommandType.collection: {
         try {
           // Get collection name and number of items to search for
           const { value: name } = interaction.options.get("name", true);
@@ -107,106 +107,117 @@ export default async function replyChatInteraction(
             `Error in chat interaction ${JSON.stringify(e)} for ${interaction}`
           );
         }
+        break;
       }
-      break;
-    case CommandType.disableAlert: {
-      const { value: name } = interaction.options.get("name", true);
-      switch (name) {
-        case AlertType.listings: {
-          constants.ALERT_ENABLED.listings = false;
-          await interaction.reply({
-            content: `listings alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.listings
-            )}`,
-            ephemeral: true,
-          });
-          break;
+      case CommandType.disableAlert: {
+        const { value: name } = interaction.options.get("name", true);
+        switch (name) {
+          case AlertType.listings: {
+            constants.ALERT_ENABLED.listings = false;
+            await interaction.reply({
+              content: `listings alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.listings
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
+          case AlertType.sales: {
+            constants.ALERT_ENABLED.sales = false;
+            await interaction.reply({
+              content: `sales alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.sales
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
+          case AlertType.floor: {
+            constants.ALERT_ENABLED.floor = false;
+            await interaction.reply({
+              content: `floor alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.floor
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
+          case AlertType.bid: {
+            constants.ALERT_ENABLED.bid = false;
+            await interaction.reply({
+              content: `bid alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.bid
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
         }
-        case AlertType.sales: {
-          constants.ALERT_ENABLED.sales = false;
-          await interaction.reply({
-            content: `sales alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.sales
-            )}`,
-            ephemeral: true,
-          });
-          break;
-        }
-        case AlertType.floor: {
-          constants.ALERT_ENABLED.floor = false;
-          await interaction.reply({
-            content: `floor alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.floor
-            )}`,
-            ephemeral: true,
-          });
-          break;
-        }
-        case AlertType.bid: {
-          constants.ALERT_ENABLED.bid = false;
-          await interaction.reply({
-            content: `bid alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.bid
-            )}`,
-            ephemeral: true,
-          });
-          break;
-        }
+        // Log success
+        logger.info(`Successfully disabled ${name}`);
+        break;
       }
-      break;
-    }
-    case CommandType.enableAlert: {
-      const { value: name } = interaction.options.get("name", true);
-      switch (name) {
-        case AlertType.listings: {
-          constants.ALERT_ENABLED.listings = true;
-          await interaction.reply({
-            content: `listings alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.listings
-            )}`,
-            ephemeral: true,
-          });
-          break;
+      case CommandType.enableAlert: {
+        const { value: name } = interaction.options.get("name", true);
+        switch (name) {
+          case AlertType.listings: {
+            constants.ALERT_ENABLED.listings = true;
+            await interaction.reply({
+              content: `listings alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.listings
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
+          case AlertType.sales: {
+            constants.ALERT_ENABLED.sales = true;
+            await interaction.reply({
+              content: `sales alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.sales
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
+          case AlertType.floor: {
+            constants.ALERT_ENABLED.floor = true;
+            await interaction.reply({
+              content: `floor alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.floor
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
+          case AlertType.bid: {
+            constants.ALERT_ENABLED.bid = true;
+            await interaction.reply({
+              content: `bid alert is now set to ${JSON.stringify(
+                constants.ALERT_ENABLED.bid
+              )}`,
+              ephemeral: true,
+            });
+            break;
+          }
         }
-        case AlertType.sales: {
-          constants.ALERT_ENABLED.sales = true;
-          await interaction.reply({
-            content: `sales alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.sales
-            )}`,
-            ephemeral: true,
-          });
-          break;
-        }
-        case AlertType.floor: {
-          constants.ALERT_ENABLED.floor = true;
-          await interaction.reply({
-            content: `floor alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.floor
-            )}`,
-            ephemeral: true,
-          });
-          break;
-        }
-        case AlertType.bid: {
-          constants.ALERT_ENABLED.bid = true;
-          await interaction.reply({
-            content: `bid alert is now set to ${JSON.stringify(
-              constants.ALERT_ENABLED.bid
-            )}`,
-            ephemeral: true,
-          });
-          break;
-        }
+        // Log success
+        logger.info(`Successfully enabled ${name}`);
+        break;
       }
-      break;
+
+      case CommandType.listAlerts: {
+        await interaction.reply({
+          content: JSON.stringify(constants.ALERT_ENABLED),
+          ephemeral: true,
+        });
+        break;
+      }
     }
-    case CommandType.listAlerts: {
-      await interaction.reply({
-        content: JSON.stringify(constants.ALERT_ENABLED),
-        ephemeral: true,
-      });
-      break;
-    }
+  } catch (e) {
+    await interaction.reply("Something went wrong, please try again later.");
+    logger.error(
+      `Error in chat interaction ${JSON.stringify(e)} for ${interaction}`
+    );
   }
 }
