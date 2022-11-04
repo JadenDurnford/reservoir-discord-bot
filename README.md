@@ -9,10 +9,12 @@ Discord server, which can be expanded and customized to their liking. Come test 
 
 The Discord bot ships with the following functionality:
 
-- Automated alerts for new floor listings and top collection bids
+- Automated alerts for new listings, sales, floor listings, and top collection bids
 
 <p align="center">
+<image src="https://i.imgur.com/UNa3src.png" width="500">
 <image src="https://i.imgur.com/OpYAk1A.png" width="500">
+<image src="https://i.imgur.com/xTyVwDJ.png" width="500">
 </p>
 
 - Collection search to view stats, current top bid, and current floor price
@@ -57,6 +59,9 @@ cp .env.sample .env
 # Set env vars in editor of your choice
 vim .env
 
+# Set constants in editor of your choice
+vim src/utils/constants.ts
+
 # Create and start the docker container
 docker compose up -d
 ```
@@ -72,6 +77,9 @@ cp .env.sample .env
 
 # Set env vars in editor of your choice
 vim .env
+
+# Set constants in editor of your choice
+vim src/utils/constants.ts
 
 # Download dependencies
 npm install
@@ -93,11 +101,11 @@ Constants
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60 \* 30 (30 minutes) |
 | PRICE_CHANGE_OVERRIDE | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
-| ALERT_ENABLED | Enable/disable new floor price and top bid event alerts | true (enabled) |
+| ALERT_ENABLED | Enable/disable new listings, sales, floor price, and top bid alerts | listings, sales: false; floor price, top bid: true |
 | APPLICATION_ID | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
 | CHANNEL_IDS | [The Discord channels you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
 | ALERT_CONTRACT | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
-| TRACKED_CONTRACTS | The contract address(es) of the collection(s) you want to be alerted of new listings and sales | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
+| TRACKED_CONTRACTS | The contract address(es) of the collection(s) you want to be alerted of new listings and sales | [0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb] |
 | REDIS_HOST | Redis host to connect to (For Docker set to "redis") | 127.0.0.1 |
 | REDIS_PORT | Redis port to connect to (For Docker set to "6379") | 6379 |
 
