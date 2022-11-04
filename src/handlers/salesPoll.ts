@@ -8,6 +8,7 @@ import {
 import { paths } from "@reservoir0x/reservoir-kit-client";
 import logger from "../utils/logger";
 import handleMediaConversion from "../utils/media";
+import getCollection from "./getCollection";
 const sdk = require("api")("@reservoirprotocol/v1.0#6e6s1kl9rh5zqg");
 
 /**
@@ -45,7 +46,7 @@ export async function salesPoll(
   // Pull cached sales event id from Redis
   const cachedId: string | null = await redis.get("salesorderid");
   if (!sales[0].saleId) {
-    logger.info("Couldn't set latest sales order id");
+    logger.error("Couldn't set latest sales order id");
     return;
   }
 
@@ -73,26 +74,62 @@ export async function salesPoll(
   }
 
   for (let i = cachedListingIndex; i >= 0; i--) {
-    const icon = await handleMediaConversion(
+    const name = sales[i].token?.name;
+    const image = sales[i].token?.image;
+
+    if (!sales[i].orderSource) {
+      logger.error(`couldn't return sale order source for ${sales[i].txHash}`);
+      continue;
+    }
+
+    if (!name || !image) {
+      logger.error(
+        `couldn't return sale order name and image for ${sales[i].txHash}`
+      );
+      continue;
+    }
+
+    const collection = await getCollection(
+      undefined,
+      sales[i].token?.contract,
+      1,
+      false
+    );
+
+    if (!collection?.[0].image || !collection?.[0].name) {
+      logger.error(
+        `couldn't return sale order collection data for ${sales[i].txHash}`
+      );
+      continue;
+    }
+    const marketIcon = await handleMediaConversion(
       `https://api.reservoir.tools/redirect/sources/${sales[i].orderSource}/logo/v2`,
       `${sales[i].orderSource}`
     );
+
+    const thumbnail = await handleMediaConversion(image, name);
+
+    const authorIcon = await handleMediaConversion(
+      collection[0].image,
+      collection[0].name
+    );
+
     const salesEmbed = new EmbedBuilder()
       .setColor(0x8b43e0)
       .setTitle(`${sales[i].token?.name} has been sold!`)
       .setAuthor({
         name: `${sales[i].token?.collection?.name}`,
         url: `https://forgotten.market/${sales[i].token?.contract}`,
-        // iconURL: `${tokenDetails.collection.image}`,
+        iconURL: `attachment://${authorIcon.name}`,
       })
       .setDescription(
         `Item: ${sales[i].token?.name}\nPrice: ${sales[i].price?.amount?.native}Ξ ($${sales[i].price?.amount?.usd})\nBuyer: ${sales[i].to}\nSeller: ${sales[i].from}`
       )
-      .setThumbnail(`${sales[i].token?.image}`)
+      .setThumbnail(`attachment://${thumbnail.name}`)
       .setFooter({
         text: `${sales[i].orderSource}`,
-        iconURL: icon
-          ? `attachment://${icon.name}`
+        iconURL: marketIcon
+          ? `attachment://${marketIcon.name}`
           : `https://api.reservoir.tools/redirect/sources/${sales[i].orderSource}/logo/v2`,
       })
       .setTimestamp();
@@ -104,7 +141,11 @@ export async function salesPoll(
         .setStyle(5)
         .setURL(`https://etherscan.io/tx/${sales[i].txHash}`)
     );
-    channel.send({ embeds: [salesEmbed], components: [row], files: [icon] });
+    channel.send({
+      embeds: [salesEmbed],
+      components: [row],
+      files: [marketIcon, thumbnail, authorIcon],
+    });
   }
   await redis.set("salesorderid", sales[0].saleId);
 }

@@ -47,13 +47,13 @@ export async function listingPoll(
     }
 
     // Pull cached listing event id from Redis
-    const cachedId: string | null = await redis.get("listingorderid");
+    const cachedId: string | null = await redis.get("listingsorderid");
 
     if (!cachedId) {
       channel.send(
         "Restarting listing bot, new listings will begin to populate from here..."
       );
-      await redis.set("listingorderid", listings[0].id);
+      await redis.set("listingsorderid", listings[0].id);
       return;
     }
 
@@ -68,11 +68,25 @@ export async function listingPoll(
       }) - 1;
 
     if (cachedListingIndex < 0) {
-      await redis.del("listingorderid");
+      await redis.del("listingsorderid");
       logger.info("cached listing not found, resetting");
     }
 
     for (let i = cachedListingIndex; i >= 0; i--) {
+      if (listings[i].tokenSetId === listings[i + 1].tokenSetId) {
+        logger.info(
+          `skipping duplicated listing order from other marketplace ${listings[i].id}`
+        );
+        continue;
+      }
+
+      if (!listings[i].source?.icon || !listings[i].source?.name) {
+        logger.error(
+          `couldn't return listing order source for ${listings[i].id}`
+        );
+        continue;
+      }
+
       const tokenResponse: paths["/tokens/v5"]["get"]["responses"]["200"]["schema"] =
         await sdk.getTokensV5({
           tokenSetId: listings[i].tokenSetId,
@@ -82,17 +96,26 @@ export async function listingPoll(
           includeAttributes: "true",
           accept: "*/*",
         });
-
       const tokenDetails = tokenResponse.tokens?.[0].token;
 
-      if (!tokenDetails || !tokenDetails?.collection) {
-        logger.error("couldnt collect token info");
-        throw new Error("couldnt collect token info");
+      if (
+        !tokenDetails ||
+        !tokenDetails?.collection ||
+        !tokenDetails.attributes ||
+        !tokenDetails.collection.image ||
+        !tokenDetails.collection.name ||
+        !tokenDetails.image ||
+        !tokenDetails.name
+      ) {
+        logger.error(
+          `couldn't return listing order collection data for ${listings[i].id}`
+        );
+        continue;
       }
 
       // create attributes array for discord fields if the attributes exist
       const attributes: { name: string; value: string; inline: boolean }[] =
-        tokenDetails.attributes?.map((attr) => {
+        tokenDetails.attributes.map((attr) => {
           return {
             name: attr.key ?? "",
             value: attr.value ?? "",
@@ -100,9 +123,19 @@ export async function listingPoll(
           };
         }) ?? [];
 
-      const icon = await handleMediaConversion(
+      const sourceIcon = await handleMediaConversion(
         `${listings[i].source?.icon}`,
         `${listings[i].source?.name}`
+      );
+
+      const authorIcon = await handleMediaConversion(
+        tokenDetails.collection.image,
+        tokenDetails.collection.name
+      );
+
+      const image = await handleMediaConversion(
+        tokenDetails.image,
+        tokenDetails.name
       );
 
       const listingEmbed = new EmbedBuilder()
@@ -111,18 +144,16 @@ export async function listingPoll(
         .setAuthor({
           name: `${tokenDetails.collection.name}`,
           url: `https://forgotten.market/${tokenDetails.contract}`,
-          iconURL: `${tokenDetails.collection.image}`,
+          iconURL: `attachment://${authorIcon.name}`,
         })
         .setDescription(
           `Item: ${tokenDetails.name}\nPrice: ${listings[i].price?.amount?.native}Ξ ($${listings[i].price?.amount?.usd})\nFrom: ${listings[i].maker}`
         )
         .addFields(attributes)
-        .setImage(`${tokenDetails.image}`)
+        .setImage(`attachment://${image.name}`)
         .setFooter({
           text: `${listings[i].source?.name}`,
-          iconURL: icon
-            ? `attachment://${icon.name}`
-            : `${listings[i].source?.icon}`,
+          iconURL: `attachment://${sourceIcon.name}`,
         })
         .setTimestamp();
 
@@ -131,7 +162,6 @@ export async function listingPoll(
         new ButtonBuilder()
           .setLabel("Purchase")
           .setStyle(5)
-          // .setURL(`${listings[i].source?.url}`)
           .setURL(
             `https://forgotten.market/${tokenDetails.contract}/${tokenDetails.tokenId}`
           )
@@ -139,10 +169,10 @@ export async function listingPoll(
       channel.send({
         embeds: [listingEmbed],
         components: [row],
-        files: icon ? [icon] : [],
+        files: [sourceIcon, authorIcon, image],
       });
     }
-    await redis.set("listingorderid", listings[0].id);
+    await redis.set("listingsorderid", listings[0].id);
   } catch (e) {
     logger.error(`Error ${e} updating new listings`);
   }
