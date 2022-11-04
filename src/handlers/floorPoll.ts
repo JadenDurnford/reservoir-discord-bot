@@ -55,7 +55,8 @@ export async function floorPoll(
       !floorAsk?.event?.id ||
       !floorAsk.floorAsk?.tokenId ||
       !floorAsk.floorAsk?.price ||
-      !floorAsk?.event?.createdAt
+      !floorAsk?.event?.createdAt ||
+      !floorAsk?.floorAsk?.source
     ) {
       logger.error(`Could not pull floor ask for ${contractAddress}`);
       return;
@@ -167,9 +168,9 @@ export async function floorPoll(
             6
           )}](https://www.reservoir.market/address/${
             floorToken.token.owner
-          })\nLast Sale: ${floorToken.token.lastSell.value}Ξ\nRarity Rank: ${
-            floorToken.token.rarityRank
-          }`
+          })\nLast Sale: ${floorToken.token.lastSell.value ?? "N/A"}${
+            floorToken.token.lastSell.value ? "Ξ" : ""
+          }\nRarity Rank: ${floorToken.token.rarityRank}`
         )
         .addFields(attributes)
         .setThumbnail(`${floorToken.token.image}`)
@@ -181,7 +182,7 @@ export async function floorPoll(
           .setLabel("Purchase")
           .setStyle(5)
           .setURL(
-            `https://www.reservoir.market/${contractAddress}/${floorAsk.floorAsk.tokenId}`
+            `https://api.reservoir.tools/redirect/sources/${floorAsk.floorAsk.source}/tokens/${floorToken.token.collection.id}%3A${floorToken.token.tokenId}/link/v2`
           )
       );
 
