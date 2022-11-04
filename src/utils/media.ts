@@ -25,7 +25,7 @@ export default async function handleMediaConversion(
   let attachment = new AttachmentBuilder(image);
 
   // Set fileName to collection name
-  let fileName = name.replace(/[^\w\s\']|_/g, "");
+  let fileName = name.replace(/[^0-9a-z]/gi, "");
   fileName = fileName.replace(/\s+/g, "");
   attachment.name = `${fileName}.${"png"}`;
 

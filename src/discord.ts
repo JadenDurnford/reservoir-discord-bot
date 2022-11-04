@@ -8,6 +8,8 @@ import {
 import logger from "./utils/logger";
 import { floorPoll } from "./handlers/floorPoll";
 import { bidPoll } from "./handlers/bidPoll";
+import { listingPoll } from "./handlers/listingPoll";
+import { salePoll } from "./handlers/salesPoll";
 import replyChatInteraction from "./interactions/chatInteractions";
 import { replySelectInteraction } from "./interactions/selectInteractions";
 import commandBuilder from "./utils/commands";
@@ -15,16 +17,10 @@ import Redis from "ioredis";
 import constants from "./utils/constants";
 
 export default class Discord {
-  // Tracked Collection
-  private contractAddress: string;
-  // Discord channel to send alerts
-  private channelId: string;
   // Discord Bot Token
   private token: string;
   // Reservoir API Key
   private apiKey: string;
-  // Discord Bot Application ID
-  private applicationId: string;
   // Redis connection url
   private redisURL: {};
   // Setting Discord bot permissions
@@ -38,40 +34,43 @@ export default class Discord {
 
   /**
    * Initialize new Discord bot
-   * @param {string} contractAddress Tracked Collection
-   * @param channelId Discord channel to send alerts
-   * @param token Discord Bot Token
+   * @param {string} token Discord Bot Token
+   * @param {string} apiKey Reservoir API Key
+   * @param {object} redisURL Redis connection url
    */
-  constructor(
-    contractAddress: string,
-    channelId: string,
-    token: string,
-    apiKey: string,
-    applicationId: string,
-    redisURL: {}
-  ) {
-    this.contractAddress = contractAddress;
-    this.channelId = channelId;
+  constructor(token: string, apiKey: string, redisURL: {}) {
     this.token = token;
     this.apiKey = apiKey;
-    this.applicationId = applicationId;
     this.redisURL = redisURL;
   }
 
   /**
-   * Check for new floor price and top bid events, and alert the channel if there are any
+   * Alert new listings, sales, floor price and top bid
    */
-  async poll(channel: TextChannel): Promise<void> {
-    // Setting up Redis
-    const redis = new Redis(this.redisURL);
-
-    // Get new floor price and top bid data
-    Promise.allSettled([
-      floorPoll(channel, this.contractAddress, this.apiKey, redis),
-      bidPoll(channel, this.contractAddress, this.apiKey, redis),
-    ]);
-    // Collecting new data in 5s
-    setTimeout(() => this.poll(channel), 5000);
+  async poll(
+    listingChannel: any,
+    salesChannel: any,
+    mainChannel: any,
+    redis: Redis
+  ): Promise<void> {
+    // Call polling functions
+    await Promise.allSettled([
+      listingPoll(
+        listingChannel,
+        constants.TRACKED_CONTRACTS,
+        this.apiKey,
+        redis
+      ),
+      salePoll(salesChannel, constants.TRACKED_CONTRACTS, this.apiKey, redis),
+      floorPoll(mainChannel, constants.ALERT_CONTRACT, this.apiKey, redis),
+      bidPoll(mainChannel, constants.ALERT_CONTRACT, this.apiKey, redis),
+    ]).then(() => {
+      // Collecting new data in 1s
+      setTimeout(
+        () => this.poll(listingChannel, salesChannel, mainChannel, redis),
+        1000
+      );
+    });
   }
 
   /**
@@ -79,34 +78,29 @@ export default class Discord {
    */
   async handleEvents(): Promise<void> {
     // Make sure commands are registered
-    await commandBuilder(this.applicationId, this.token);
+    await commandBuilder(constants.APPLICATION_ID, this.token);
+    // Setting up Redis
+    const redis = new Redis(this.redisURL);
 
     // Handle ready
     this.client.on(Events.ClientReady, async () => {
       // Log Discord bot online
       logger.info(`Discord bot is connected as ${this.client.user?.tag}`);
-      // Getting bot channel
-      const channel = this.client.channels.cache.get(this.channelId);
 
-      // Log failure + throw on channel not found
-      if (!channel) {
-        logger.error("Could not connect to channel");
-        throw new Error("Could not connect to channel");
-      }
+      // Getting bot channels
+      const mainChannel = this.client.channels.cache.get(
+        constants.CHANNEL_IDS.mainChannel
+      );
+      const listingChannel = this.client.channels.cache.get(
+        constants.CHANNEL_IDS.listingChannel
+      );
+      const salesChannel = this.client.channels.cache.get(
+        constants.CHANNEL_IDS.salesChannel
+      );
 
-      // Log failure + throw on incorrect channel type
-      if (channel.type !== ChannelType.GuildText) {
-        logger.error("Channel is not a text channel");
-        throw new Error("Channel is not a text channel");
-      }
       // Starting poll process
-      if (constants.ALERT_ENABLED) {
-        await this.poll(channel);
-      }
+      this.poll(listingChannel, salesChannel, mainChannel, redis);
     });
-
-    // Setting up Redis
-    const redis = new Redis(this.redisURL);
 
     // Handle user interaction creation
     this.client.on(Events.InteractionCreate, async (interaction) => {
