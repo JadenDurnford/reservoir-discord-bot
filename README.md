@@ -35,7 +35,7 @@ The Discord bot ships with the following functionality:
 ### Prerequisites
 
 1. Install [Node.js and NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-2. Request a free [Reservoir API Key](https://docs.reservoir.tools/reference/overview#/0.%20Auth/postApikeys)
+2. Request a free [Reservoir API Key](https://docs.reservoir.tools/reference/rate-limits#instant-api-key)
 3. [Setup a Discord application and bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html#setting-up-a-bot-application)
 
 ### Built With
