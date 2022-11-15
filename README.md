@@ -101,7 +101,7 @@ Constants
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | ALERT_COOLDOWN | Number of seconds to wait before sending a new floor price or top bid alert | 60 \* 30 (30 minutes) |
 | PRICE_CHANGE_OVERRIDE | Percentage change in floor price to override alert cooldown | 0.1 (10%) |
-| ALERT_ENABLED | Enable/disable new listings, sales, floor price, and top bid alerts | listings, sales: false; floor price, top bid: true |
+| ALERT_ENABLED | Enable/disable new listings, sales, floor price, and top bid alerts | listings: false, sales: false, floor: true, bid: true |
 | APPLICATION_ID | [Your Discord application id](https://support-dev.discord.com/hc/en-us/articles/360028717192-Where-can-I-find-my-Application-Team-Server-ID-) | 5736050287834562 |
 | CHANNEL_IDS | [The Discord channels you want the bot active in](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) | 123456789098765432 |
 | ALERT_CONTRACT | The contract address of the collection you want to be alerted of floor price and top bid changes | 0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb |
