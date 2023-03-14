@@ -43,10 +43,10 @@ import constants from "./utils/constants";
 
     waitPort(params).then(async ({ open, ipVersion }) => {
       if (open) {
-        console.log(`The port is now open on IPv${ipVersion}!`);
+        logger.info(`The port is now open on IPv${ipVersion}!`);
         // Listen for Discord events
         await discord.handleEvents();
-      } else console.log("The port did not open before the timeout...");
+      } else logger.info("The port did not open before the timeout...");
     });
   } catch (e) {
     if (e instanceof Error) {
